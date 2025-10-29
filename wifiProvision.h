@@ -9,16 +9,16 @@ class WifiProvisioner {
         WifiProvisioner() {
 
             // TODO: Implement flash file management
-            // TODO: READ CREDENTIALS FILE AND STORE IN A GLOBAL VARIABLE!!!!
+            // read file credentails to a global variable 
         };
 
+        int startProvision();
     private:
         PicoAP picoAP;
         Blink led;
 
         bool hasCredentials();
         bool btnSeletected();
-        int startProvision();
 };
 
 bool WifiProvisioner::hasCredentials() {
