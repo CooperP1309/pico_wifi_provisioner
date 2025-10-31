@@ -4,10 +4,10 @@
 #include "pico/stdlib.h"        // standard pico functions
 #include "dhcpserver.h"         // pico DHCP server functionality (targeteted in CMakeLists.txt)
 #include "lwip/ip4_addr.h"      // for ip4_addr_t
+#include "pico_lfs.h"           // file system manager
 
 #include "blink.h"              // project headers
 #include "wifiProvision.h"
-#include "picoDHCP.h"
 
 using namespace std;
 
@@ -17,11 +17,15 @@ int main() {
    stdio_init_all();
    cyw43_arch_init();
 
+   // wait to ensure serial usb output is fully initialize
+   sleep_ms(2000);
+   printf("\nAnticipate starting...\n");
+
    // initialize wifi provisioning
    WifiProvisioner provisioner;
 
    if(!provisioner.hasCredentials() || provisioner.btnSelected()) {
-      provisioner.startProvision();
+      //provisioner.startProvision();
    }
 
     return 0;
