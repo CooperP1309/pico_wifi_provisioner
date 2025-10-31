@@ -13,12 +13,11 @@ class WifiProvisioner {
         };
 
         int startProvision();
+        bool hasCredentials();
+        bool btnSelected();
     private:
         PicoAP picoAP;
         Blink led;
-
-        bool hasCredentials();
-        bool btnSeletected();
 };
 
 bool WifiProvisioner::hasCredentials() {
@@ -29,7 +28,7 @@ bool WifiProvisioner::hasCredentials() {
     return true;
 }
 
-bool WifiProvisioner::btnSeletected() {
+bool WifiProvisioner::btnSelected() {
 
     // TODO: Implement GPIO btn
     // Check if the button is pressed at two points ~300ms apart (case for true)

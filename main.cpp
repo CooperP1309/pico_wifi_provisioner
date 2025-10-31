@@ -7,6 +7,7 @@
 
 #include "blink.h"              // project headers
 #include "wifiProvision.h"
+#include "picoDHCP.h"
 
 using namespace std;
 
