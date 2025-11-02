@@ -1,12 +1,10 @@
-#include <iostream>
-#include <string>
-#include "pico/cyw43_arch.h"    // pico access point functionality
-#include "pico/stdlib.h"        // standard pico functions
+// pico sdk headers
+#include "pico/cyw43_arch.h"    // wifi chip library
+#include "pico/stdlib.h"        // standard library pico functions
 #include "dhcpserver.h"         // pico DHCP server functionality (targeteted in CMakeLists.txt)
 #include "lwip/ip4_addr.h"      // for ip4_addr_t
-#include "pico_lfs.h"           // file system manager
 
-#include "blink.h"              // project headers
+// project headers
 #include "wifiProvision.h"
 
 using namespace std;

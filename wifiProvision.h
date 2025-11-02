@@ -1,13 +1,9 @@
 #ifndef WIFIPROVISION_H
 #define WIFIPROVISION_H
 
+#include "blink.h"           
 #include "picoAP.h"
 #include "picoDHCP.h"
-
-#define FILESYS_SIZE (256 * 1024)
-
-static struct lfs_config *lfs_cfg;
-static lfs_t lfs;
 
 class WifiProvisioner {
     public:
@@ -17,15 +13,10 @@ class WifiProvisioner {
             led.blink_once_quick();
             led.blink_once_quick();
             led.blink_once_quick();
-            
-            // initialize files and read wifi credentials
-            if (mountLFS()) {
-                return;
-            }
 
+            printf("WifiProvisioner: Initializing...\n");
         };
 
-        int mountLFS();         // LittleFileSystem must be mounted to read and write files
         bool hasCredentials();
         bool btnSelected();
         int startProvision();
@@ -34,37 +25,6 @@ class WifiProvisioner {
         Blink led;
 
 };
-
-int WifiProvisioner::mountLFS() {
-    
-    // we start by initializing the global lfs config instance
-    lfs_cfg = pico_lfs_init(PICO_FLASH_SIZE_BYTES - FILESYS_SIZE, FILESYS_SIZE);
-    /*
-        note: by setting start as the total bytes - file sys size, we start at the end of flash
-    */
-    
-    if (!lfs_cfg) {
-        printf("\nWifiProvision:\n  Failed to init littleFS\n");
-        return 1;
-    }
-
-    printf("\nWifiProvision:\n  littleFS initialized\n");
-    
-    // mount will be unsuccessfull if no file system is formatted yet
-    if (lfs_mount(&lfs, lfs_cfg)) {
-        
-        printf("\nWifiProvision:\n  mount failed. Reformatting file system...\n");
-        
-        // abort if formatting fails
-        if (lfs_format(&lfs, lfs_cfg)) {
-            return 1;
-        }
-    }
-    
-    printf("\nWifiProvision:\n  littleFS mounted and ready for use\n");
-
-    return 0;
-}
 
 bool WifiProvisioner::hasCredentials() {
 

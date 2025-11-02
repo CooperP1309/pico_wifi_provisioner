@@ -22,18 +22,6 @@ target_include_directories(pico_wifi_provision PRIVATE
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver
 )
 
-# ---- INCLUDING OF litteFS ----
-add_subdirectory(libs/pico-lfs)
-
-#target_link_libraries(pico_wifi_provision PRIVATE pico-lfs)
-
-target_compile_definitions(pico_wifi_provision PRIVATE
-  LFS_THREADSAFE=1
-  LFS_NO_DEBUG=1
-)
-
-# ---- DONE INCLUDING litteFS ----
-
 # Enable at least one stdio transport if you want to see printf()
 pico_enable_stdio_usb(pico_wifi_provision 1)   # set to 0 if you prefer UART
 pico_enable_stdio_uart(pico_wifi_provision 0)  # set to 1 if you prefer UART
@@ -42,7 +30,6 @@ pico_enable_stdio_uart(pico_wifi_provision 0)  # set to 1 if you prefer UART
 target_link_libraries(pico_wifi_provision
     pico_stdlib
     pico_cyw43_arch_lwip_threadsafe_background
-    pico-lfs 
 )
 
 # Optional: request a newer C++ standard if you like
