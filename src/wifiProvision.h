@@ -4,6 +4,7 @@
 #include "blink.h"           
 #include "picoAP.h"
 #include "picoDHCP.h"
+#include "picoFiles.h"
 
 class WifiProvisioner {
     public:
@@ -14,7 +15,9 @@ class WifiProvisioner {
             led.blink_once_quick();
             led.blink_once_quick();
 
-            printf("WifiProvisioner: Initializing...\n");
+            printf("\nWifiProvisioner: initializing wifi credentials...\n");
+            
+            files.init();
         };
 
         bool hasCredentials();
@@ -23,6 +26,7 @@ class WifiProvisioner {
     private:
         PicoAP picoAP;
         Blink led;
+        PicoFiles files;
 
 };
 

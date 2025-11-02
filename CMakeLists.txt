@@ -10,6 +10,7 @@ pico_sdk_init()
 # ---- Optional: path to pico-examples (you already had this) ----
 set(PICO_EXAMPLES_PATH "$ENV{HOME}/pico/pico-examples" CACHE PATH "Path to the pico-examples repository")
 
+#[[
 # ============================================
 # pico-littlefs (submodule lives at libs/pico-littlefs)
 # ============================================
@@ -24,14 +25,28 @@ if(EXISTS "${PICO_LFS_DIR}")
 else()
     message(WARNING "libs/pico-littlefs not found. Did you run: git submodule update --init --recursive ?")
 endif()
+]]
 
 # ============================================
 # Your executable and sources
 # ============================================
 add_executable(pico_wifi_provision
     src/main.cpp
-    # Keep using the DHCP example C source for now
+
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
+)
+
+# specify which directories to search for "#indluce "xxx"" headers in
+target_include_directories(pico_wifi_provision PRIVATE
+    ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver
+
+    # NEW: littlefs-lib headers (root + include/)
+    ${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/littlefs-lib
+    ${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/littlefs-lib/include
+
+    # NEW: stdinit-lib headers (root + include/)
+    ${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/stdinit-lib
+    ${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/stdinit-lib/include
 )
 
 # DHCP example include path
@@ -43,12 +58,19 @@ target_include_directories(pico_wifi_provision PRIVATE
 pico_enable_stdio_usb(pico_wifi_provision 1)
 pico_enable_stdio_uart(pico_wifi_provision 0)
 
+# adding sub directories for stdinit and pico-littlefs
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/stdinit-lib)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libs/pico-littlefs/littlefs-lib)
+
 # Core Pico + WiFi
 target_link_libraries(pico_wifi_provision
     pico_stdlib
     pico_cyw43_arch_lwip_threadsafe_background
+    stdinit-lib
+    littlefs-lib
 )
 
+#[[
 # ============================================
 # Link pico-littlefs (targets and/or headers)
 # ============================================
@@ -74,6 +96,7 @@ if(EXISTS "${PICO_LFS_DIR}" AND NOT _linked_lfs)
     )
     message(STATUS "No pico-littlefs CMake target found; added include paths only.")
 endif()
+]]
 
 # C++ standard
 target_compile_features(pico_wifi_provision PRIVATE cxx_std_17)

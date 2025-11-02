@@ -3,6 +3,8 @@
 #include "pico/stdlib.h"        // standard library pico functions
 #include "dhcpserver.h"         // pico DHCP server functionality (targeteted in CMakeLists.txt)
 #include "lwip/ip4_addr.h"      // for ip4_addr_t
+#include "pico_hal.h"           // pico file system lib
+#include "stdinit.h"            //
 
 // project headers
 #include "wifiProvision.h"
@@ -11,7 +13,7 @@ using namespace std;
 
 int main() {
 
-   // each class assumes standard input and wifi chip pre-initialization
+   // pre-initialization of cyw34 chip and stdio assumed in all classes
    stdio_init_all();
    cyw43_arch_init();
 
