@@ -1,36 +1,37 @@
-#ifndef WIFIPROVISION_H
-#define WIFIPROVISION_H
+#ifndef WIFI_PROVISIONER_H
+#define WIFI_PROVISIONER_H
 
 #include "blink.h"           
-#include "picoAP.h"
-#include "picoDHCP.h"
-#include "picoFiles.h"
+#include "pico_fs.h"
+#include "pico_ap.h"
+#include "pico_dhcp.h"
 
-class WifiProvisioner {
+class Wifi_Provisioner {
     public:
-        WifiProvisioner() {
+        Wifi_Provisioner() {
 
             // three quick flashes to indicate start up of wifi module
             led.blink_once_quick();
             led.blink_once_quick();
             led.blink_once_quick();
 
-            printf("\nWifiProvisioner: initializing wifi credentials...\n");
-            
-            files.init();
+            printf("WifiProvisioner: initializing wifi credentials...\n");
+            pico_fs.init();
+
+            printf("WifiProvisioner: opening credentials file\n");
+
         };
 
-        bool hasCredentials();
-        bool btnSelected();
-        int startProvision();
+        bool has_credentials();
+        bool btn_selected();
+        int start_provision();
     private:
-        PicoAP picoAP;
         Blink led;
-        PicoFiles files;
-
+        Pico_FS pico_fs;
+        Pico_AP pico_ap;
 };
 
-bool WifiProvisioner::hasCredentials() {
+bool Wifi_Provisioner::has_credentials() {
 
     // TODO:
     // Check if the credentials read from the flash file are empty (case for false)
@@ -38,7 +39,7 @@ bool WifiProvisioner::hasCredentials() {
     return true;
 }
 
-bool WifiProvisioner::btnSelected() {
+bool Wifi_Provisioner::btn_selected() {
 
     // TODO: Implement GPIO btn
     // Check if the button is pressed at two points ~300ms apart (case for true)
@@ -46,7 +47,7 @@ bool WifiProvisioner::btnSelected() {
     return true;
 }
 
-int WifiProvisioner::startProvision() {
+int Wifi_Provisioner::start_provision() {
 
     // three quick blinks to indicate start of access point
     led.blink_once_quick();
@@ -54,7 +55,7 @@ int WifiProvisioner::startProvision() {
     led.blink_once_quick();
 
     // start the access point
-    picoAP.startAP();
+    pico_ap.start_ap();
 
     // continuous slow blink to indicate access point is running (30 blinks until timeout)
     for (int i=0; i<30; i++) {
@@ -62,9 +63,9 @@ int WifiProvisioner::startProvision() {
     }
 
     // stop the access point after timeout
-    picoAP.stopAP();
+    pico_ap.stop_ap();
 
     return 0;
 }
 
-#endif // WIFIPROVISION_H
+#endif // WIFI_PROVISIONER_H

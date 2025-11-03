@@ -1,20 +1,20 @@
-#ifndef PICODHCP_H
-#define PICODHCP_H
+#ifndef PICO_DHCP_H
+#define PICO_DHCP_H
 
-class PicoDHCP {
+class Pico_DHCP {
     public:
-        int startDHCP();
+        int start_dhcp();
         int stopAP();
 
     private:
         dhcp_server_t dhcp_server;
         /*
-            Fun fact: "_t" is to destinguish that object as a type
+            note: "_t" denotes an object _type
         */
 
 };
 
-int PicoDHCP::startDHCP() {
+int Pico_DHCP::start_dhcp() {
 
     // initialize gateway and subnet address
     ip4_addr_t gateway_addr;
@@ -45,4 +45,4 @@ int PicoDHCP::startDHCP() {
     return 0;
 }
 
-#endif // PICODHCP_H
+#endif // PICO_DHCP_H

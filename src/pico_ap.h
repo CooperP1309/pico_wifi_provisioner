@@ -1,13 +1,13 @@
-#ifndef PICOAP_H
-#define PICOAP_H
+#ifndef PICO_AP_H
+#define PICO_AP_H
 
-class PicoAP {
+class Pico_AP {
     public:
-        int startAP();
-        int stopAP();
+        int start_ap();
+        int stop_ap();
 };
 
-int PicoAP::startAP() {
+int Pico_AP::start_ap() {
 
     // set parameters for the access point
     const char *ssid = "anticipate_wifi";
@@ -20,7 +20,7 @@ int PicoAP::startAP() {
     return 0;
 }
 
-int PicoAP::stopAP() {
+int Pico_AP::stop_ap() {
 
     cyw43_arch_disable_ap_mode();
     printf("PicoAP: Wifi Access Point stopped\n");
@@ -28,4 +28,4 @@ int PicoAP::stopAP() {
     return 0;
 }
 
-#endif // PICOAP_H
+#endif // PICO_AP_H

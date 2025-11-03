@@ -7,7 +7,7 @@
 #include "stdinit.h"            //
 
 // project headers
-#include "wifiProvision.h"
+#include "wifi_provisioner.h"
 
 using namespace std;
 
@@ -22,11 +22,14 @@ int main() {
    printf("\nAnticipate starting...\n");
 
    // initialize wifi provisioning
-   WifiProvisioner provisioner;
+   Wifi_Provisioner provisioner;
 
-   if(!provisioner.hasCredentials() || provisioner.btnSelected()) {
-      //provisioner.startProvision();
+   if(!provisioner.has_credentials() || provisioner.btn_selected()) {
+      //provisioner.start_provision();
    }
 
     return 0;
 }
+
+// TODO: DELETE WHEN DONE
+//sudo minicom -D /dev/ttyACM0 -b 115200
