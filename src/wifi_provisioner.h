@@ -6,6 +6,9 @@
 #include "pico_ap.h"
 #include "pico_dhcp.h"
 
+const char* wifi_credentials_path = "wifi_credentials.txt";
+#define FILE_SIZE 256
+
 class Wifi_Provisioner {
     public:
         Wifi_Provisioner() {
@@ -18,8 +21,15 @@ class Wifi_Provisioner {
             printf("WifiProvisioner: initializing wifi credentials...\n");
             pico_fs.init();
 
-            printf("WifiProvisioner: opening credentials file\n");
+            //char buffer[32] = "Maccas wifi";
+            //pico_fs.write_file(wifi_credentials_path, buffer, FILE_SIZE);
 
+            char buffer[FILE_SIZE] = "";
+            pico_fs.read_file(wifi_credentials_path, buffer, FILE_SIZE);
+
+            // TODO: CONFIG BUFFER FLUSHING PROPERLY
+            printf("WifiProvisioner: extracted from wifi credentials file: %s \n", buffer);
+            fflush(stdout);
         };
 
         bool has_credentials();

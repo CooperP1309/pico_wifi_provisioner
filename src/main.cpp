@@ -14,7 +14,7 @@ using namespace std;
 int main() {
 
    // pre-initialization of cyw34 chip and stdio assumed in all classes
-   stdio_init_all();
+   stdio_init();
    cyw43_arch_init();
 
    // wait to ensure serial usb output is fully initialize
