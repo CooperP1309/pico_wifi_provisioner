@@ -56,7 +56,6 @@ int Pico_FS::read_file(const char* file_name, char* buffer, int buff_len) {
     
     // read to buffer (-1 buff len to preserve terminating null)
     int bytes_read = pico_read(fp, buffer, buff_len-1);
-    
     buffer[bytes_read] = '\0';
 
     printf("PicoFiles: read %d bytes from file\n", bytes_read);
