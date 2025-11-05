@@ -19,16 +19,22 @@ class Wifi_Provisioner {
             led.blink_once_quick();
 
             printf("WifiProvisioner: initializing wifi credentials...\n");
-            pico_fs.init();
+            
+            if (pico_fs.init() < 0) {
+                return;
+            }
 
+            // TODO: delete when done debugging
             //char buffer[32] = "Maccas wifi";
             //pico_fs.write_file(wifi_credentials_path, buffer, FILE_SIZE);
 
             char buffer[FILE_SIZE] = "";
-            pico_fs.read_file(wifi_credentials_path, buffer, FILE_SIZE);
+            if (pico_fs.read_file(wifi_credentials_path, buffer, FILE_SIZE) < 0) {
+                return;
+            }
 
-            // TODO: CONFIG BUFFER FLUSHING PROPERLY
-            printf("WifiProvisioner: extracted from wifi credentials file: %s \n", buffer);
+            // manually flush buffer (limit calling frequency)
+            printf("WifiProvisioner: extracted from wifi credentials file: %s\n", buffer);
             fflush(stdout);
         };
 

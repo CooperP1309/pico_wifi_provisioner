@@ -11,7 +11,7 @@ class Pico_FS {
 
 int Pico_FS::init() {
 
-    // attempt initial mount w/o formatting
+    // attempt initial mount w/o formatting - expect mount fail on first startup (format req.)
     if (pico_mount(false) < 0) {
         printf("PicoFiles: failed to mount file system - commencing formatting...\n");
         
@@ -41,10 +41,8 @@ int Pico_FS::deinit() {
 
 int Pico_FS::read_file(const char* file_name, char* buffer, int buff_len) {
 
-    // reinit to clear usb stdio
-    stdio_deinit_all();
-    stdio_init(); 
-    sleep_ms(2000);
+    // manually flush buffer (limit calling)
+    fflush(stdout);
 
     // to handle first time startups, set flag create if not exists
     int fp = pico_open(file_name, LFS_O_RDWR | LFS_O_CREAT);
@@ -57,9 +55,9 @@ int Pico_FS::read_file(const char* file_name, char* buffer, int buff_len) {
     printf("PicoFiles: file opened successfully\n");
     
     // read to buffer (-1 buff len to preserve terminating null)
-    int bytes_read = pico_read(fp, buffer, buff_len);
+    int bytes_read = pico_read(fp, buffer, buff_len-1);
     
-    buffer[(bytes_read < (int)buff_len - 1) ? bytes_read : (int)buff_len - 1] = '\0';
+    buffer[bytes_read] = '\0';
 
     printf("PicoFiles: read %d bytes from file\n", bytes_read);
 
