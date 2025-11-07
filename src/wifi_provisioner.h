@@ -25,14 +25,14 @@ class Wifi_Provisioner {
             }
 
             // TODO: delete when done debugging + write buffer was 32 bytes last time it worked
-            //char buffer[FILE_SIZE] = "Maccas wifi";
+            //char buffer[FILE_SIZE] = "belong423j";
             //pico_fs.write_file(wifi_credentials_path, buffer, FILE_SIZE);
 
             if (pico_fs.read_file(wifi_credentials_path, credentials, FILE_SIZE) < 0) {
                 return;
             }
 
-            // manually flush buffer (limit calling frequency)
+            // manually flush buffer (limit calling frequency (time consuming))
             printf("WifiProvisioner: extracted from wifi credentials file: %s\n", credentials);
             fflush(stdout);
         };

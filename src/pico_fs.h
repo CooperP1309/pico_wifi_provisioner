@@ -41,9 +41,6 @@ int Pico_FS::deinit() {
 
 int Pico_FS::read_file(const char* file_name, char* buffer, int buff_len) {
 
-    // manually flush buffer (limit calling)
-    fflush(stdout);
-
     // to handle first time startups, set flag create if not exists
     int fp = pico_open(file_name, LFS_O_RDWR | LFS_O_CREAT);
     
@@ -71,11 +68,6 @@ int Pico_FS::read_file(const char* file_name, char* buffer, int buff_len) {
 }
 
 int Pico_FS::write_file(const char* file_name, char* buffer, int buf_len) {
-
-    // reinit to clear usb stdio
-    stdio_deinit_all();
-    stdio_init(); 
-    sleep_ms(2000);
 
     // truncate file data
     int fp = pico_open(file_name, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC);

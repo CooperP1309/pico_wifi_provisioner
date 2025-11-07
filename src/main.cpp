@@ -7,8 +7,6 @@
 
 #include "wifi_provisioner.h"    // actual provisioner implementation
 
-using namespace std;
-
 int main() {
 
    // pre-initialization of cyw34 chip and stdio assumed in all classes
@@ -28,6 +26,3 @@ int main() {
 
     return 0;
 }
-
-// TODO: DELETE WHEN DONE
-//sudo minicom -D /dev/ttyACM0 -b 115200
