@@ -1,25 +1,18 @@
 #ifndef WIFI_PROVISIONER_H
 #define WIFI_PROVISIONER_H
+#define FILE_SIZE 128
+const char* wifi_credentials_path = "wifi_credentials.txt";
 
 #include "blink.h"           
 #include "pico_fs.h"
 #include "pico_ap.h"
 #include "pico_dhcp.h"
 
-const char* wifi_credentials_path = "wifi_credentials.txt";
-#define FILE_SIZE 128
-
 class Wifi_Provisioner {
     public:
         Wifi_Provisioner() {
 
-            // three quick flashes to indicate start up of wifi module
-            led.blink_once_quick();
-            led.blink_once_quick();
-            led.blink_once_quick();
-
             printf("WifiProvisioner: initializing wifi credentials...\n");
-            
             if (pico_fs.init() < 0) {
                 return;
             }
@@ -45,6 +38,7 @@ class Wifi_Provisioner {
         Blink led;
         Pico_FS pico_fs;
         Pico_AP pico_ap;
+        Pico_DHCP pico_dhcp;
         char credentials[FILE_SIZE];
 };
 
