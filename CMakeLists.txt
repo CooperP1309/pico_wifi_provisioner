@@ -19,6 +19,7 @@ set(PICO_EXAMPLES_PATH "$ENV{HOME}/pico/pico-examples" CACHE PATH "Path to the p
 add_executable(pico_wifi_provision    
     src_c/main.c
     src_c/wifi_provisioner.c
+    src_c/pico_fs.c
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
 )
 
