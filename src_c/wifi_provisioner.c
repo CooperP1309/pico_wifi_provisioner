@@ -24,9 +24,16 @@ int wifi_provisioner_init() {
     blink(250);
     blink(250);
 
-    // max length of SSID (32 chars) + max length of password(64) = 96
-    char buffer[96];
-    picofs_read_file(CREDENTIALS_PATH, buffer, sizeof(buffer)); 
+    // read credentials file from flash storage
+    if (picofs_init()){
+        return -1;
+    }
+    char buffer[96];    // max length of SSID (32 chars) + max length of password(64) = 96
+    if (picofs_read_file(CREDENTIALS_PATH, buffer, sizeof(buffer)) < 0) {
+        return -1;
+    } 
+    printf("extracted credentials: %s", buffer);
+    fflush(stdout);
 
     return 1; 
 }
