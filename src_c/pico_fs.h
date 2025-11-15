@@ -15,7 +15,8 @@ int picofs_deinit();
 
 // Read pico files
 //
-//
+// Declares
+// Returns bytes read.
 int picofs_read_file(const char* file_name, char* buffer, int buff_len);
 
 int picofs_write_file(const char* file_name, char* buffer, int buf_len);
