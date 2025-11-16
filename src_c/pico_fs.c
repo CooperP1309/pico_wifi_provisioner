@@ -45,6 +45,12 @@ int picofs_read_file(const char* file_name, char* buffer, int buff_len) {
     
     // read to buffer (-1 buff len to preserve terminating null)
     int bytes_read = pico_read(fp, buffer, buff_len-1);
+
+    if (bytes_read < 0) {
+        printf("PicoFiles: error reading file\n");
+        return -1;
+    }
+
     buffer[bytes_read] = '\0';
 
     printf("PicoFiles: read %d bytes from file\n", bytes_read);
@@ -73,6 +79,11 @@ int picofs_write_file(const char* file_name, char* buffer, int buf_len) {
     
     // write from buffer
     int bytes_written = pico_write(fp, buffer, strnlen(buffer, buf_len));
+
+    if (bytes_written < 0) {
+        printf("PicoFiles: error writting to cache\n");
+        return -1;
+    }
 
     printf("PicoFiles: %d bytes written to file\n", bytes_written);
 
