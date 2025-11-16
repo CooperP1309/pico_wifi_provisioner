@@ -20,6 +20,8 @@ add_executable(pico_wifi_provision
     src_c/pico_fs.c
     src_c/pico_ap.c
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
+    src_c/pico_dhcp.c
+    src_c/udp_sniffer.c
 )
 
 # ---- adding library files ----

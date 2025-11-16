@@ -7,6 +7,8 @@
 #include "wifi_provisioner.h"
 #include "pico_fs.h"            // abstraction of flash file i/o functions
 #include "pico_ap.h"
+#include "pico_dhcp.h"
+#include "udp_sniffer.h"
 
 // Declare credentials memory in this scope only
 //
@@ -20,7 +22,7 @@ char credentials_buffer[96] = {0};
 int pico_prov_init() {
     
     // stdio and wifi chip inits
-    if (!stdio_init_all() < 0) {
+    if (stdio_init_all() < 0) {
         return -1;
     }
     if (cyw43_arch_init() < 0) {
@@ -62,10 +64,15 @@ bool pico_prov_button_pressed() {
 
 int pico_prov_ap_begin() {
 
+    udp_sniffer_init();
+
     // starting of access point
     if (start_ap() < 0){
         return -1;
     }
+
+    // begin listening dhcp server
+    dhcp_start();
 
     return 0;
 }
