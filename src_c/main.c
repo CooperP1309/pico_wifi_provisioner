@@ -14,6 +14,12 @@ int main() {
         pico_prov_ap_begin();
     }
  
+    // print the MAC of the picoW wifi interface
+    uint8_t mac[6];
+    cyw43_wifi_get_mac(&cyw43_state, CYW43_ITF_AP, mac);
+    printf("Pico AP MAC: %02X:%02X:%02X:%02X:%02X:%02X\n",
+        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
     // ensure background thread stays active
     while(1) {
 

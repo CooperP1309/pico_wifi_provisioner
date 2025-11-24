@@ -34,6 +34,12 @@ add_executable(pico_wifi_provision
 # NOTE: This doesn't actually compile the included header files for you
 target_include_directories(pico_wifi_provision PRIVATE
     
+    # ensure preferred lwipopts file is targeted by having it precede examples path directories
+    ${CMAKE_CURRENT_LIST_DIR}/src_c
+
+    # target the lwip opts file configured for access point usage
+    ${PICO_EXAMPLES_PATH}/pico_w/wifi
+
     # pico examples dhcp server implementation
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver
 

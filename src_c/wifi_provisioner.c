@@ -10,13 +10,8 @@
 #include "pico_dhcp.h"
 #include "udp_sniffer.h"
 
-// Declare credentials memory in this scope only
-//
-// By declaring the credentials buffer in this ".c" file,
-// the scope is limited to this file. This is fine as implementations
-// for handling the credentials states are only needed here.
-// The length of the buffer: 
-// max length of SSID (32 chars) + max length of password(64) = 96
+// buffer length = 
+// max length of SSID (32 chars) + space + max length of password(63) = 96
 char credentials_buffer[96] = {0};  
 
 int pico_prov_init() {
@@ -25,9 +20,11 @@ int pico_prov_init() {
     if (stdio_init_all() < 0) {
         return -1;
     }
-    if (cyw43_arch_init() < 0) {
-        return -1;
+    //if (cyw43_arch_init() < 0) {
+    if (cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA) < 0) {
+    return -1;
     }
+
     sleep_ms(2000);
 
     // indication of initialization via both serial output and led 
