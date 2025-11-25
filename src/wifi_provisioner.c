@@ -8,7 +8,6 @@
 #include "pico_fs.h"            // abstraction of flash file i/o functions
 #include "pico_ap.h"
 #include "pico_dhcp.h"
-#include "udp_sniffer.h"
 
 // buffer length = 
 // max length of SSID (32 chars) + space + max length of password(63) = 96
@@ -20,9 +19,8 @@ int pico_prov_init() {
     if (stdio_init_all() < 0) {
         return -1;
     }
-    //if (cyw43_arch_init() < 0) {
-    if (cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA) < 0) {
-    return -1;
+    if (cyw43_arch_init() < 0) {
+        return -1;
     }
 
     sleep_ms(2000);
@@ -60,16 +58,16 @@ bool pico_prov_button_pressed() {
 }
 
 int pico_prov_ap_begin() {
-
-    udp_sniffer_init();
-
+    
     // starting of access point
     if (start_ap() < 0){
         return -1;
     }
 
     // begin listening dhcp server
-    dhcp_start();
+    if (pico_dhcp_start() < 0) {
+        return -1;
+    }
 
     return 0;
 }

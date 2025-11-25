@@ -12,7 +12,7 @@
 // files functions. Thus scope is limited here.
 dhcp_server_t dhcp_server;
 
-int dhcp_start() {
+int pico_dhcp_start() {
 
     // initialize gateway and subnet address
     ip4_addr_t gateway_addr;

@@ -15,13 +15,12 @@ set(PICO_EXAMPLES_PATH "$ENV{HOME}/pico/pico-examples" CACHE PATH "Path to the p
 
 # ---- sourcing of executables ----
 add_executable(pico_wifi_provision    
-    src_c/main.c
-    src_c/wifi_provisioner.c
-    src_c/pico_fs.c
-    src_c/pico_ap.c
+    src/main.c
+    src/wifi_provisioner.c
+    src/pico_fs.c
+    src/pico_ap.c
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
-    src_c/pico_dhcp.c
-    src_c/udp_sniffer.c
+    src/pico_dhcp.c
 )
 
 # ---- adding library files ----
@@ -35,7 +34,7 @@ add_executable(pico_wifi_provision
 target_include_directories(pico_wifi_provision PRIVATE
     
     # ensure preferred lwipopts file is targeted by having it precede examples path directories
-    ${CMAKE_CURRENT_LIST_DIR}/src_c
+    ${CMAKE_CURRENT_LIST_DIR}/src
 
     # target the lwip opts file configured for access point usage
     ${PICO_EXAMPLES_PATH}/pico_w/wifi

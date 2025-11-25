@@ -13,8 +13,7 @@ int start_ap() {
     const char *password = "anticipate123";
 
     // start the access point with passed params
-    //cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
-    cyw43_arch_enable_ap_mode(ssid, NULL, CYW43_AUTH_OPEN);
+    cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
 
     printf("PicoAP: Wifi Access Point started with SSID: %s\n", ssid);
 
