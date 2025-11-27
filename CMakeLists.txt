@@ -31,6 +31,9 @@ add_executable(pico_wifi_provision
 
 # ---- linking directories to be included via headers ----
 # NOTE: This doesn't actually compile the included header files for you
+# BIGGER NOTE: Integrated DHCP servers lwipopts file sets NO_SYS as false, causing
+#              ifdefs to try and compile OS arch files, thus we make sure to override
+#              this option via our custom lwipopts
 target_include_directories(pico_wifi_provision PRIVATE
     
     # ensure preferred lwipopts file is targeted by having it precede examples path directories

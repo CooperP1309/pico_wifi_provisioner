@@ -6,10 +6,6 @@
 
 #include "pico_dhcp.h"
 
-// dhcp_server type
-//
-// Only accessed and modified within the scope of this
-// files functions. Thus scope is limited here.
 dhcp_server_t dhcp_server;
 
 int pico_dhcp_start() {
@@ -39,6 +35,11 @@ int pico_dhcp_start() {
     cyw43_arch_lwip_end();
 
     printf("PicoDHCP: dhcp server initialized\n");
+
+    return 0;
+}
+
+int pico_dhcp_stop() {
 
     return 0;
 }

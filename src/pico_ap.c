@@ -14,7 +14,6 @@ int start_ap() {
 
     // start the access point with passed params
     cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
-
     printf("PicoAP: Wifi Access Point started with SSID: %s\n", ssid);
 
     return 0;
