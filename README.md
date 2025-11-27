@@ -1,4 +1,6 @@
----- Wifi Provisioning for the Raspberry Pico Pi W ----
+<h1>Wifi Provisioning for the Raspberry Pico Pi W</h1>
+
+<h2>Building Note</h2>
 
 Built around the Pico Pi W, not the Pico Pi W 2. Should still work, though not tested. 
 To use this repo, you must have the pico-sdk downloaded. Run this setup script from Raspberry Pi 
@@ -8,7 +10,14 @@ to download it (linux terminal script):
 
 Should you run this, this repo will gather the dependencies with no problems.
 
----- Psuedo Code ----
+<h2>Usage Note</h2>
+
+This is an educational project for me to learn the essentials of embedded C. Please refrain from
+using this code for anything other than hobby projects.
+
+<h2>Psuedo Code</h2>
+
+WIFI PROVISIONING:
 
     initialize littleFS instance
     read wifi credentials file
@@ -31,10 +40,3 @@ CAPTIVE HTTP PORTAL:
       hold for reply
       
     }
-  
-
-
-
-
-  
-  

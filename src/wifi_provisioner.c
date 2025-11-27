@@ -5,7 +5,6 @@
 
 // project headers
 #include "wifi_provisioner.h"
-#include "pico_prov_errors.h"
 #include "pico_fs.h"            // abstraction of flash file i/o functions
 #include "pico_ap.h"
 #include "pico_dhcp.h"
@@ -40,8 +39,9 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
         return PICO_PROV_ERR;
     }
 
+    // processing retrieved credentials
+    sort_credentials_buffer(&wifi_credentials);
     printf("PicoProv: extracted credentials: %s\n", credentials_buffer);
-
     fflush(stdout);
 
     return PICO_PROV_OK; 
@@ -62,8 +62,53 @@ int pico_prov_begin() {
     return 0;
 }
 
-void sort_credentials_buffer() {
+void sort_credentials_buffer(pico_prov_credentials_t *wifi_credentials) {
 
+    // case for empty credentials
+    if (credentials_buffer[0] == '\0') {
+        wifi_credentials->ssid[0] = '\0';
+        wifi_credentials->password[0] = '\0';
+        return;
+    }
+
+    // externally declare indexes for persistance between loops
+    int i = 0;
+    int x = 0;
+
+    // SSID extracting
+    for (;i < 32; i++) {    // increment index i until space is reached
+        
+        if (credentials_buffer[i] == ' ' || credentials_buffer[i] == '\0') {
+            break;
+        }
+
+        wifi_credentials->ssid[i] = credentials_buffer[i];
+    }
+
+    // terminate SSID and increment index beyond space
+    wifi_credentials->ssid[i] = '\0';
+    
+    // handle no password
+    if (credentials_buffer[i] == '\0') {
+        wifi_credentials->password[0] = '\0';
+        return;
+    }
+    
+    i++;
+
+    // password extracting
+    for (;x < 64 && (x + i) < 96; x++) {
+        
+        // assign and access of pswrd from buffer must be offset by i
+        if (credentials_buffer[x + i] == '\0') {
+            break;
+        }
+
+        wifi_credentials->password[x] = credentials_buffer[x + i];
+    }
+
+    // terminate password
+    wifi_credentials->password[x] = '\0';
 }
 
 void blink(int blink_length) {

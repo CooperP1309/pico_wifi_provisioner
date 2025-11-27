@@ -1,7 +1,7 @@
 #ifndef PICO_FS_H
 #define PICO_FS_H
 
-#include "pico_prov_errors.h"
+#include "wifi_provisioner.h"
 
 // Mount pico file system
 //

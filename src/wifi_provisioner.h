@@ -1,22 +1,39 @@
 #ifndef WIFI_PROVISIONER_H
 #define WIFI_PROVISIONER_H
 
+#pragma once
+
+#define CREDENTIALS_PATH "wifi_credentials.txt"
+
 #include <stdbool.h>
-#include "pico_prov_errors.h"
+
+typedef enum {
+
+    PICO_PROV_OK                = 0,
+
+    PICO_PROV_ERR               = -1,
+    PICO_PROV_ERR_INIT          = -2,
+    PICO_PROV_ERR_FS_MOUNT      = -3,
+    PICO_PROV_ERR_FS_READ       = -4,
+    PICO_PROV_ERR_AP_INIT       = -5,
+    PIVO_PROV_ERR_DHCP_INIT     = -6,
+    PICO_PROV_ERR_DHCP_DEINIT   = -7,
+    PICO_PROV_ERR_AP_DEINIT     = -8,
+    PICO_PROV_ERR_FS_UMOUNT     = -9
+
+} pico_prov_err_t;
 
 typedef struct {
     char ssid[33];          // up to 32 + terminating null
     char password[64];      // up to 63 + terminating null
 } pico_prov_credentials_t;
 
-#define CREDENTIALS_PATH "wifi_credentials.txt"
-
-// Initialize all pico io cases
+// Initialize all pico IO + credentials
 //
 // Initializing of stdio, the cyw34 wifi chip and the mounting of
 // a pico flash file system is carried out. If init suceeds, 
-// reference to credentials struct is used to assign extracted
-// credentials from file.
+// passed reference to credentials struct is used to assign extracted
+// credentials from file (will leave struct members blank if necessary).
 pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials);
 
 // Begins wifi access point

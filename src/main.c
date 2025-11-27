@@ -15,7 +15,6 @@ int main() {
 
     // begin provisioning if credentials weren't attained after init
     if (1 /* || reset_wifi_btn_pressed()*/) {
-        
         pico_prov_begin();
     }
 
