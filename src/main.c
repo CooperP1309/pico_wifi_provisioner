@@ -19,8 +19,8 @@ int main() {
     }
 
     while(1) {
-        printf("listening...\n");
-        sleep_ms(5000);
+        cyw43_arch_poll();
+        sleep_ms(1);
     }
  
     return 0;

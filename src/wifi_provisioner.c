@@ -29,12 +29,12 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
     blink(250);
 
     // mount the file system for credentails extraction
-    if (pico_fs_init() == PICO_PROV_ERR_FS_MOUNT){
+    if (pico_fs_init() < 0){
         return PICO_PROV_ERR_FS_MOUNT;
     }
 
     // actual reading of credentials file  
-    if (pico_fs_read_file(CREDENTIALS_PATH, credentials_buffer, 96) == PICO_PROV_ERR_FS_READ) {
+    if (pico_fs_read_file(CREDENTIALS_PATH, credentials_buffer, 96) < 0) {
         printf("PicoProv: reading from file failed\n");
         return PICO_PROV_ERR_FS_READ;
     }
@@ -60,8 +60,16 @@ pico_prov_err_t pico_prov_begin() {
     // begin listening dhcp server
     pico_dhcp_start();
 
-    // begin captive listening portal
-    //if (pico)
+    // init captive web portal
+    portal_server_t *portal_server = pico_captive_portal_init();
+    if (!portal_server) {
+        return PICO_PROV_ERR_PORTAL_INIT;
+    }
+
+    // starting of web portal
+    if (pico_captive_portal_start(portal_server) < 0) {
+        return PICO_PROV_ERR_PORTAL_START;
+    }
 
     return PICO_PROV_OK;
 }

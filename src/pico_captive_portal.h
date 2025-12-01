@@ -1,7 +1,7 @@
 #ifndef PICO_CAPTIVE_PORTAL_H
 #define PICO_CAPTIVE_PORTAL_H
 
-#define TCP_PORT 80
+#define PORT 80
 #define BUF_SIZE 2048
 
 typedef struct {
@@ -22,6 +22,19 @@ typedef struct {
 //
 // We declare a new portal server instance on the heap via calloc.
 // Error if new instance failed.
-static portal_server_t* pico_captive_portal_init(void);
+portal_server_t* pico_captive_portal_init(void);
+
+// Starting of the captive server listening on tcp web port 80.
+//
+// Declare a new pcb instance, hook it up to the IP available on the wifi chip,
+// bind it to port 80 and begin listening on it. Point the server pcb pointer
+// to the listening pcb instance.
+int pico_captive_portal_start(portal_server_t *captive_server);
+
+// Call back function for accepted requests
+//
+// Used by the lwip stack as a call back function when a connection is accepted 
+// on a listening TCP socket.
+err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t err);
 
 #endif // PICO_CAPTIVE_PORTAL_H
