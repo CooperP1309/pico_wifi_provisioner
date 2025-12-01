@@ -6,8 +6,8 @@
 // project headers
 #include "wifi_provisioner.h"
 #include "pico_fs.h"            // abstraction of flash file i/o functions
-#include "pico_ap.h"
 #include "pico_dhcp.h"
+#include "pico_captive_portal.h"
 
 // buffer length = 
 // max length of SSID (32 chars) + space + max length of password(63) = 96
@@ -30,36 +30,40 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
 
     // mount the file system for credentails extraction
     if (pico_fs_init() == PICO_PROV_ERR_FS_MOUNT){
-        return PICO_PROV_ERR;
+        return PICO_PROV_ERR_FS_MOUNT;
     }
 
     // actual reading of credentials file  
     if (pico_fs_read_file(CREDENTIALS_PATH, credentials_buffer, 96) == PICO_PROV_ERR_FS_READ) {
         printf("PicoProv: reading from file failed\n");
-        return PICO_PROV_ERR;
+        return PICO_PROV_ERR_FS_READ;
     }
 
     // processing retrieved credentials
-    sort_credentials_buffer(&wifi_credentials);
+    sort_credentials_buffer(wifi_credentials);
     printf("PicoProv: extracted credentials: %s\n", credentials_buffer);
     fflush(stdout);
 
     return PICO_PROV_OK; 
 }
 
-int pico_prov_begin() {
+pico_prov_err_t pico_prov_begin() {
     
-    // starting of access point
-    if (start_ap() < 0){
-        return -1;
-    }
+    // set parameters for the access point
+    const char *ssid = "anticipate_wifi";
+    const char *password = "anticipate123";
+    
+    // start access point
+    cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
+    printf("PicoAP: Wifi Access Point started with SSID: %s\n", ssid);
 
     // begin listening dhcp server
-    if (pico_dhcp_start() < 0) {
-        return -1;
-    }
+    pico_dhcp_start();
 
-    return 0;
+    // begin captive listening portal
+    //if (pico)
+
+    return PICO_PROV_OK;
 }
 
 void sort_credentials_buffer(pico_prov_credentials_t *wifi_credentials) {

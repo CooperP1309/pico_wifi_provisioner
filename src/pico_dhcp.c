@@ -8,7 +8,7 @@
 
 dhcp_server_t dhcp_server;
 
-int pico_dhcp_start() {
+void pico_dhcp_start() {
 
     // initialize gateway and subnet address
     ip4_addr_t gateway_addr;
@@ -22,7 +22,6 @@ int pico_dhcp_start() {
     cyw43_arch_lwip_begin();
 
     // initialize network interface for dhcp access point
-    //struct netif *ap_interface = &cyw43_state.netif[CYW43_ITF_AP];
     struct netif *ap_interface = &cyw43_state.netif[CYW43_ITF_AP];
     netif_set_addr(ap_interface, &gateway_addr, &sub_mask, &gateway_addr);
     netif_set_default(ap_interface);
@@ -34,9 +33,7 @@ int pico_dhcp_start() {
     // end arch
     cyw43_arch_lwip_end();
 
-    printf("PicoDHCP: dhcp server initialized\n");
-
-    return 0;
+    printf("[pico_dhcp] dhcp server initialized\n");
 }
 
 int pico_dhcp_stop() {

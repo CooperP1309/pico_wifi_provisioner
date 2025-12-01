@@ -15,11 +15,9 @@ typedef enum {
     PICO_PROV_ERR_INIT          = -2,
     PICO_PROV_ERR_FS_MOUNT      = -3,
     PICO_PROV_ERR_FS_READ       = -4,
-    PICO_PROV_ERR_AP_INIT       = -5,
-    PIVO_PROV_ERR_DHCP_INIT     = -6,
-    PICO_PROV_ERR_DHCP_DEINIT   = -7,
-    PICO_PROV_ERR_AP_DEINIT     = -8,
-    PICO_PROV_ERR_FS_UMOUNT     = -9
+    PICO_PROV_ERR_FS_UMOUNT     = -5,
+    PICO_PROV_ERR_PORTAL_INIT   = -6,
+    PICO_PROV_ERR_PORTAL_CONN   = -7
 
 } pico_prov_err_t;
 
@@ -33,14 +31,24 @@ typedef struct {
 // Initializing of stdio, the cyw34 wifi chip and the mounting of
 // a pico flash file system is carried out. If init suceeds, 
 // passed reference to credentials struct is used to assign extracted
-// credentials from file (will leave struct members blank if necessary).
+// credentials from file (will leave password and/or ssid blank if needed).
 pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials);
 
 // Begins wifi access point
 //
 // Activates the AP on the cyw34 chip and begins a listening
 // dhcp server.
-int pico_prov_begin();
+pico_prov_err_t pico_prov_begin();
+
+// Sorts the credentails retrieved from the pico fs system
+//
+// Where the format of the extracted credentials is a single char array,
+// we sort the credentails buffer into the passed reference for the 
+// credentials struct. SSID and password are space delimited when stored.
+// This function accounts for missing credentials and case where password
+// is missing but SSID isn't. The credentails buffer for each will be left
+// char[0] = '\0' where necessary.
+void sort_credentials_buffer(pico_prov_credentials_t *wifi_credentials);
 
 // Blinks the LED
 //

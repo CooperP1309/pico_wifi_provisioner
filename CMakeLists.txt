@@ -18,9 +18,9 @@ add_executable(pico_wifi_provision
     src/main.c
     src/wifi_provisioner.c
     src/pico_fs.c
-    src/pico_ap.c
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
     src/pico_dhcp.c
+    src/pico_captive_portal.c
 )
 
 # ---- adding library files ----
