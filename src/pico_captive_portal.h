@@ -37,4 +37,10 @@ int pico_captive_portal_start(portal_server_t *captive_server);
 // on a listening TCP socket.
 err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t err);
 
+// Sends data to an accepted connection
+//
+// Arg set as client pcb via tcp_arg(). This will deliver a http response with html
+// and css for the captive web portal.
+err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb);
+
 #endif // PICO_CAPTIVE_PORTAL_H
