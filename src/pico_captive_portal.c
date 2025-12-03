@@ -70,22 +70,12 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
 
     captive_server->client_pcb = client_pcb;
 
-    // setting of new arg (client_pcb must be passed as dest for tcp data)
+    // setting of required callback functions and args for send and recv
     tcp_arg(client_pcb, captive_server);
-
-    /*
-    // setting callback function for when data is sent succcessfully
-    tcp_sent(client_pcb, tcp_server_sent);
-
-    // setting callback function for when data is recieved succcessfully
-    tcp_recv(client_pcb, tcp_server_recv);
-
-    // setting callback function for polling the tcp connection
-    tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
-
-    // setting callback function for when data is sent succcessfully
-    tcp_err(client_pcb, tcp_server_err);
-    */
+    //tcp_sent(client_pcb, tcp_server_sent);
+    //tcp_recv(client_pcb, tcp_server_recv);
+    //tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
+    //tcp_err(client_pcb, tcp_server_err);
 
     return pico_captive_portal_send_data(arg, captive_server->client_pcb);
     //return 0;
@@ -93,6 +83,33 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
 
 err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
+    portal_server_t *captive_server = (portal_server_t*)arg;
+    
+    /*HTTP/1.1 200 OK
+    
+    Hello World\n*/
+
+    /*
+    state->sent_len = 0;
+    DEBUG_printf("Writing %ld bytes to client\n", BUF_SIZE);
+    // this method is callback from lwIP, so cyw43_arch_lwip_begin is not required, however you
+    // can use this method to cause an assertion in debug mode, if this method is called when
+    // cyw43_arch_lwip_begin IS needed
+    cyw43_arch_lwip_check();
+    err_t err = tcp_write(tpcb, state->buffer_sent, BUF_SIZE, TCP_WRITE_FLAG_COPY);
+    if (err != ERR_OK) {
+        DEBUG_printf("Failed to write data %d\n", err);
+        return tcp_server_result(arg, -1);
+    }
+    return ERR_OK;
+    */
+
+    return 0;
+}
+
+err_t pico_captive_portal_sent() {
+
+    printf("[pico_captive_portal] successfully sent http frame\n");
 
     return 0;
 }
