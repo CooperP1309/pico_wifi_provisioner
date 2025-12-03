@@ -72,7 +72,7 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
 
     // setting of required callback functions and args for send and recv
     tcp_arg(client_pcb, captive_server);
-    //tcp_sent(client_pcb, tcp_server_sent);
+    tcp_sent(client_pcb, tcp_server_sent);
     //tcp_recv(client_pcb, tcp_server_recv);
     //tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
     //tcp_err(client_pcb, tcp_server_err);
@@ -89,22 +89,18 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
     
     Hello World\n*/
 
-    /*
     state->sent_len = 0;
-    DEBUG_printf("Writing %ld bytes to client\n", BUF_SIZE);
-    // this method is callback from lwIP, so cyw43_arch_lwip_begin is not required, however you
-    // can use this method to cause an assertion in debug mode, if this method is called when
-    // cyw43_arch_lwip_begin IS needed
+    printf("[pico_captive_portal] writing X bytes to client\n");
+
     cyw43_arch_lwip_check();
-    err_t err = tcp_write(tpcb, state->buffer_sent, BUF_SIZE, TCP_WRITE_FLAG_COPY);
+
+    err_t err = tcp_write(tpcb, captive_server->buffer_sent, BUF_SIZE, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-        DEBUG_printf("Failed to write data %d\n", err);
-        return tcp_server_result(arg, -1);
+        printf("[pico_captive_portal] failed to send data to client\n");
+        //return tcp_server_result(arg, -1);
+        return -1;
     }
     return ERR_OK;
-    */
-
-    return 0;
 }
 
 err_t pico_captive_portal_sent() {

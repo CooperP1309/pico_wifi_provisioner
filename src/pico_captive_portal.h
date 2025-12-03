@@ -31,16 +31,22 @@ portal_server_t* pico_captive_portal_init(void);
 // to the listening pcb instance.
 int pico_captive_portal_start(portal_server_t *captive_server);
 
-// Call back function for accepted requests
+// Call back function for accepted requests.
 //
 // Used by the lwip stack as a call back function when a connection is accepted 
 // on a listening TCP socket.
 err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t err);
 
-// Sends data to an accepted connection
+// Sends data to an accepted connection/
 //
 // Arg set as client pcb via tcp_arg(). This will deliver a http response with html
 // and css for the captive web portal.
 err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb);
+
+// Callback function for sent data.
+//
+// When the tcp_send_data() function is done, this function is called
+// as a callback to verify that data was sent successfully.
+err_t pico_captive_portal_sent();
 
 #endif // PICO_CAPTIVE_PORTAL_H
