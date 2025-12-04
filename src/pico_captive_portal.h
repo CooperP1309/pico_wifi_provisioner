@@ -47,6 +47,6 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb);
 //
 // When the tcp_send_data() function is done, this function is called
 // as a callback to verify that data was sent successfully.
-err_t pico_captive_portal_sent();
+err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
 
 #endif // PICO_CAPTIVE_PORTAL_H

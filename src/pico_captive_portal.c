@@ -62,17 +62,17 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
 
     portal_server_t *captive_server = (portal_server_t*)arg;
     if (err != 0 || client_pcb == NULL) {
-        printf("[pico_captive_portal] accept connection failed");
+        printf("[pico_captive_portal] error accepting connection");
         return -1;
     }
 
-    printf("[pico_captive_portal] accept connection failed");
+    printf("[pico_captive_portal] connection accepted");
 
     captive_server->client_pcb = client_pcb;
 
     // setting of required callback functions and args for send and recv
     tcp_arg(client_pcb, captive_server);
-    tcp_sent(client_pcb, tcp_server_sent);
+    tcp_sent(client_pcb, pico_captive_portal_sent);
     //tcp_recv(client_pcb, tcp_server_recv);
     //tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
     //tcp_err(client_pcb, tcp_server_err);
@@ -85,16 +85,17 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
     portal_server_t *captive_server = (portal_server_t*)arg;
     
-    /*HTTP/1.1 200 OK
-    
-    Hello World\n*/
+    // initializing of http frame        
+    const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 11\r\n\r\nHello World";
+    int length = strlen(response);
+    memcpy(captive_server->buffer_sent, response, length);
 
-    state->sent_len = 0;
+    captive_server->sent_len = 0;
     printf("[pico_captive_portal] writing X bytes to client\n");
 
     cyw43_arch_lwip_check();
 
-    err_t err = tcp_write(tpcb, captive_server->buffer_sent, BUF_SIZE, TCP_WRITE_FLAG_COPY);
+    err_t err = tcp_write(client_pcb, captive_server->buffer_sent, BUF_SIZE, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
         printf("[pico_captive_portal] failed to send data to client\n");
         //return tcp_server_result(arg, -1);
@@ -103,7 +104,7 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
     return ERR_OK;
 }
 
-err_t pico_captive_portal_sent() {
+err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 
     printf("[pico_captive_portal] successfully sent http frame\n");
 
