@@ -23,7 +23,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
     sleep_ms(2000);
 
     // indication of initialization via both serial output and led 
-    printf("\nintializing wifi provisioning...\n");
+    printf("\n[pico_prov] intializing\n");
     blink(250);
     blink(250);
     blink(250);
@@ -35,13 +35,13 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
 
     // actual reading of credentials file  
     if (pico_fs_read_file(CREDENTIALS_PATH, credentials_buffer, 96) < 0) {
-        printf("PicoProv: reading from file failed\n");
+        printf("[pico_prov] reading from file failed\n");
         return PICO_PROV_ERR_FS_READ;
     }
 
     // processing retrieved credentials
     sort_credentials_buffer(wifi_credentials);
-    printf("PicoProv: extracted credentials: %s\n", credentials_buffer);
+    printf("[pico_prov] extracted credentials: %s\n", credentials_buffer);
     fflush(stdout);
 
     return PICO_PROV_OK; 
@@ -55,7 +55,7 @@ pico_prov_err_t pico_prov_begin() {
     
     // start access point
     cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
-    printf("PicoAP: Wifi Access Point started with SSID: %s\n", ssid);
+    printf("[pico_prov] Wifi Access Point started with SSID: %s\n", ssid);
 
     // begin listening dhcp server
     pico_dhcp_start();
@@ -70,6 +70,8 @@ pico_prov_err_t pico_prov_begin() {
     if (pico_captive_portal_start(portal_server) < 0) {
         return PICO_PROV_ERR_PORTAL_START;
     }
+
+    printf("[pico_prov] captive web portal listening on: http://192.168.4.1:80/\n");
 
     return PICO_PROV_OK;
 }

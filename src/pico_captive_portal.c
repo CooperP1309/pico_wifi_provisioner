@@ -22,7 +22,7 @@ portal_server_t* pico_captive_portal_init(void) {
 
 int pico_captive_portal_start(portal_server_t *captive_server) {
 
-    // declare new pcb instance
+    // declare new pcb instance for both ipv4 and ipv6
     struct tcp_pcb *pcb = tcp_new_ip_type(IPADDR_TYPE_ANY);
     if (!pcb) {
         printf("[pico_captive_portal] error allocating pcb memory\n");
@@ -58,19 +58,17 @@ int pico_captive_portal_start(portal_server_t *captive_server) {
 
 err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t err) {
 
-    printf("I HAVE RECIEVED A TCP CONNECTION!\n");
-
     portal_server_t *captive_server = (portal_server_t*)arg;
     if (err != 0 || client_pcb == NULL) {
-        printf("[pico_captive_portal] error accepting connection");
+        printf("[pico_captive_portal] error accepting connection\n");
         return -1;
     }
 
-    printf("[pico_captive_portal] connection accepted");
+    printf("[pico_captive_portal] connection accepted\n");
 
     captive_server->client_pcb = client_pcb;
 
-    // setting of required callback functions and args for send and recv
+    // setting callback functions and args for send and recv of http data
     tcp_arg(client_pcb, captive_server);
     tcp_sent(client_pcb, pico_captive_portal_sent);
     //tcp_recv(client_pcb, tcp_server_recv);

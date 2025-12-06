@@ -33,7 +33,7 @@ void pico_dhcp_start() {
     // end arch
     cyw43_arch_lwip_end();
 
-    printf("[pico_dhcp] dhcp server initialized\n");
+    printf("[pico_dhcp] initialized\n");
 }
 
 int pico_dhcp_stop() {
