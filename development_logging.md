@@ -39,7 +39,7 @@ With that said, this file is purely used to log my design choices and lessons le
 
             In network programming, a pcb is a "Protocol Control Block".
             This pcb struct holds the relevant data for a socket connection.
-            I.e. data like IP address, port number and protocol (TCP or UDP)
+            I.e. data like IP address type, port number and protocol (TCP or UDP)
             are all held in the struct for packet sending and recieving. 
             Thus, the server will contain a pointer pcb for a client and the server.
             This will allow us to declare a pcb instace at any scope in the program 
@@ -50,8 +50,8 @@ With that said, this file is purely used to log my design choices and lessons le
             Once the server struct is initialized, we declare a new pcb with
             IPADDR_TYPE_ANY for listening on the available address of our pico
             WIC. We bind our desired port to this pcb instance (port 80 for http).
-            Once this pcb is setup, we beging listening on this pcb and assign the result
-            of the listening connection to our server pcb.
+            Once this pcb is setup, we beging listening on this pcb and assign point our
+            server pcb pointer to the resulting, listening pcb instance.
 
         3. Handling connection:
 
@@ -67,11 +67,12 @@ With that said, this file is purely used to log my design choices and lessons le
 
                 tcp_accept(server_t->server_pcb, server_accept_function)
 
-        4. Handling accepted connection:
-        
+7-12-2025:
 
+    I've actually explored the lwip tcp stack to better understand what was happening in the
+    tcp_accept() function callback.
 
-    
+    When I make the listening pcb/ server_pcb instance, the tcp_accept callback would wait until
+    a connection is made to this listening port. (This listening is called by polling the wifi chip). When a connection is recieved on the server pcb, tcp_accept will call my passed function, whilst passing the retrieved client pcb from the accepted request. 
 
-    
-
+    Note: This means that passing my server pcb as an arg for tcp_accept means that's the pcb that tcp_accept() will listen on. NOT the arg that will passed to my own _accept() function. 
