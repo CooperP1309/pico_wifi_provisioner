@@ -139,7 +139,7 @@ err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 
 err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
 
-        portal_server_t *state = (portal_server_t*)arg;
+    portal_server_t *state = (portal_server_t*)arg;
     if (!p) {
         return -1;
     }
@@ -153,10 +153,16 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
         state->recv_len += pbuf_copy_partial(p, state->buffer_recv + state->recv_len,
                                              p->tot_len > buffer_left ? buffer_left : p->tot_len, 0);
         tcp_recved(tpcb, p->tot_len);
+
+        // terminate string at end of recieved data
+        state->buffer_recv[state->recv_len] = '\0';
     }
     pbuf_free(p);
 
-    printf("[pico_captive_portal] recieved bufer: %s", state->buffer_recv);
+    printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
+
+    state->recv_len = 0;
+    memcpy(state->buffer_recv, 0, BUF_SIZE);
 
     // Have we have received the whole buffer
     if (state->recv_len == BUF_SIZE) {
@@ -177,5 +183,13 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
         // Send another buffer
         return pico_captive_portal_send_data(arg, state->client_pcb);
     }
+
     return ERR_OK;
+}
+
+static void extract_wifi_login(void *arg) {
+
+    portal_server_t *state = (portal_server_t*)arg;
+
+
 }

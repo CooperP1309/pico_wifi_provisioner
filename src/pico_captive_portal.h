@@ -54,4 +54,9 @@ err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
 // Callback call when the client pcb sends an http response to the server pcb.
 err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
+// Extract wifi details provided in http response
+//
+// Given an http response, extract the wifi credentials and store them in a credentials struct.
+static void extract_wifi_login(void *arg);
+
 #endif // PICO_CAPTIVE_PORTAL_H
