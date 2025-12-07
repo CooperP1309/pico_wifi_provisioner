@@ -8,6 +8,35 @@
 // project headers
 #include "pico_captive_portal.h"
 
+// defining http page
+const char *page =
+"HTTP/1.1 200 OK\r\n"
+"Connection: close\r\n"
+"Content-Type: text/html\r\n"
+"\r\n"
+"<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Login</title>"
+"<style>"
+"body{margin:0;font-family:Arial;background:#e9eef3;display:flex;justify-content:center;align-items:center;height:100vh;}"
+".box{background:#fff;padding:30px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1);width:280px;}"
+".box h2{text-align:center;margin:0 0 20px;color:#333;font-size:20px;}"
+".full{width:100%;box-sizing:border-box;}"
+".box input{padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;font-size:14px;}"
+".box button{padding:10px;border:none;border-radius:6px;background:#007bff;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;}"
+".box button:hover{background:#0056b3;}"
+"</style></head>"
+"<body><div class=\"box\">"
+"<h2>Anticipate - Wi-Fi Login</h2>"
+"<form method=\"post\">"
+"<input class=\"full\" type=\"text\" name=\"wifi\" placeholder=\"Enter SSID\">"
+"<div style=\"position:relative\">"
+"<input class=\"full\" type=\"password\" name=\"password\" placeholder=\"Enter password\">"
+"<span style=\"position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:12px;color:#555\">*Optional</span>"
+"</div>"
+"<button class=\"full\" type=\"submit\">Login</button>"
+"</form>"
+"</div></body></html>";
+
+
 portal_server_t* pico_captive_portal_init(void) {
 
     // calloc call justified for setup process where time efficiency is low priority
@@ -84,9 +113,10 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
     portal_server_t *captive_server = (portal_server_t*)arg;
     
     // initializing of http frame        
-    const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 11\r\n\r\nHello World";
-    int length = strlen(response);
-    memcpy(captive_server->buffer_sent, response, length);
+    //const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 11\r\n\r\nHello World";
+    
+    int length = strlen(page);
+    memcpy(captive_server->buffer_sent, page, length);
 
     captive_server->sent_len = 0;
     printf("[pico_captive_portal] writing X bytes to client\n");
