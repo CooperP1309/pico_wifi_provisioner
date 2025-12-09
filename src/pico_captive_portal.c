@@ -191,5 +191,16 @@ static void extract_wifi_login(void *arg) {
 
     portal_server_t *state = (portal_server_t*)arg;
 
+    // extracting wifi details
+    char *target_wifi = "wifi";
+    char *wifi_pointer = strstr(state->buffer_recv, target_wifi);
 
+    printf("[pico_captive_portal] wifi starts at %ld", (wifi_pointer - (char*)state->buffer_recv));
+
+    // extracting password details 
+    // (note: we restart search index incase of bad http response)
+    char *target_password = "password";
+    char *password_pointer = strstr(state->buffer_recv, target_password); 
+
+    printf("[pico_captive_portal] password letter at %ld", (password_pointer - (char*)state->buffer_recv));
 }
