@@ -33,7 +33,7 @@ const char *body =
     "</form>"
     "</div></body></html>";
 
-portal_server_t* pico_captive_portal_init(void) {
+portal_server_t* pico_captive_portal_init(pico_prov_credentials_t *wifi_credentials) {
 
     // calloc call justified for setup process where time efficiency is low priority
     portal_server_t *captive_server = calloc(1, sizeof(portal_server_t));
@@ -41,6 +41,11 @@ portal_server_t* pico_captive_portal_init(void) {
     if (!captive_server) {
         return NULL;
     }
+
+    // allocate a new credentials struct and point to its address 
+    pico_prov_credentials_t credentials;
+    captive_server->credentials = &credentials;
+    wifi_credentials = &credentials;
 
     return captive_server;
 }
@@ -72,7 +77,7 @@ int pico_captive_portal_start(portal_server_t *captive_server) {
         return -1;
     }
 
-    printf("[pico_captive_portal] listening on port 80\n");
+    printf("[pico_captive_portal] web portal server listening on port 80\n");
 
     // setting callback function args + call back function
     tcp_arg(captive_server->server_pcb, captive_server);
@@ -147,7 +152,6 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     
     cyw43_arch_lwip_check();
     if (p->tot_len > 0) {
-        printf("tcp_server_recv %d/%d err %d\n", p->tot_len, state->recv_len, err);
 
         // Receive the buffer
         const uint16_t buffer_left = BUF_SIZE - state->recv_len;
@@ -160,9 +164,11 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     }
     pbuf_free(p);
 
-    // proccess buffer once fully recieved
-    printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
-    get_wifi_login(arg);
+    // process recieved buffer if credentials are present
+    if (has_credentials(state->buffer_recv)) {
+        printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
+        get_wifi_login(arg);
+    }
 
     // clear received buffer
     state->recv_len = 0;
@@ -195,25 +201,22 @@ static void get_wifi_login(void *arg) {
     portal_server_t *state = (portal_server_t*)arg;
     
     // extracting wifi ssid
-    char ssid[33];
-
-    get_value(state->buffer_recv, "wifi=", ssid);
-    if (ssid[0] == '\0') {
+    get_value(state->buffer_recv, "wifi=", state->credentials->ssid);
+    if (state->credentials->ssid[0] == '\0') {
         printf("[pico_captive_portal] no ssid extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted ssid: %s\n", ssid);
-/*
+    printf("[pico_captive_portal] extracted ssid: \"%s\"\n", state->credentials->ssid);
+
     // extracting wifi password
-    get_value(state->buffer_recv, "password", credentials->password);
-    if (credentials->ssid == NULL) {
+    get_value(state->buffer_recv, "password=", state->credentials->password);
+    if (state->credentials->ssid == NULL) {
         printf("[pico_captive_portal] no password extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted password: %s\n", credentials->password);
-    */
+    printf("[pico_captive_portal] extracted password: \"%s\"\n", state->credentials->password);
 }
 
 static void get_value(char *in_buffer, char *key, char *out_buffer) {
@@ -229,8 +232,6 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
     // determine which index after key to start reading from
     uint8_t value_index = strlen(key);
 
-    printf("\nextracting value:\n");
-
     // copy to out_buffer
     uint8_t current_index = 0;
     while (chr_ptr[value_index + current_index] != '\0' &&
@@ -239,13 +240,19 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
            chr_ptr[value_index + current_index] != '\n') {
 
         out_buffer[current_index] = chr_ptr[value_index + current_index];
-        printf("%c from index %d\n", out_buffer[current_index], current_index);
         current_index++;
     }
-
-    printf("\nIndex 0 of out_buffer PRE termination: %c\n", out_buffer[0]);
     out_buffer[current_index] = '\0';
-    printf("\nIndex 0 of out_buffer POST termination: %c\n", out_buffer[0]);
+}
 
-    printf("\n[pico_captive_portal] extracted value from key \"%s\": \"%s\"\n", key, out_buffer);                              
+static uint8_t has_credentials(char *http_request) {
+
+    char *chr_ptr, *chr_ptr1;
+    chr_ptr = strstr(http_request, "wifi=");
+
+    if (chr_ptr == NULL) {
+        return 0;
+    }
+
+    return 1;
 }

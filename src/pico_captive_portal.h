@@ -26,8 +26,13 @@ typedef struct {
 // Initializing the tcp server.
 //
 // We declare a new portal server instance on the heap via calloc.
-// Error if new instance failed.
-portal_server_t* pico_captive_portal_init(void);
+// Error if new instance failed. Furthermore, a pico_prov_credentials struct
+// is allocated and the credentials pointer in the portal_server struct is pointed
+// to this new credential instance. This allows for modifying of the struct through
+// call back functions where the server struct is the only arg. The provisioners 
+// credential struct is also pointed to this instance for access of the data from memory
+// once the captive portal is done.
+portal_server_t* pico_captive_portal_init(pico_prov_credentials_t *wifi_credentials);
 
 // Starting of the captive server listening on tcp web port 80.
 //
@@ -67,10 +72,16 @@ static void get_wifi_login(void *arg);
 
 // Gets value of a field in a buffer given a key.
 //
-// Search for the key within a buffer. This function assumes the key in the buffer is proceeded
-// by an equals sign. When the index of the key is found, this function skips past the index of
-// the last character and equals sign and copies data to the provided output buffer.
-// It stops copying data when met with a terminating null or an ampersand.
+// Search for the key within a buffer. When the index of the key is found, 
+// this function skips past the index of the last character and equals sign 
+// and copies data to the provided output buffer. It stops copying data when 
+// met with a terminating null or an ampersand.
 static void get_value(char *in_buffer, char *key, char *out_buffer);
+
+// Checks if a passed http request has wifi credentials passed within it
+//
+// Using strstr for "wifi=" and "password=", this function will return 1 if they
+// are both present and 0 if they are not.
+static uint8_t has_credentials(char *http_request);
 
 #endif // PICO_CAPTIVE_PORTAL_H

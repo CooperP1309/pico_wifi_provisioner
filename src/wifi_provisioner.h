@@ -39,7 +39,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials);
 //
 // Activates the AP on the cyw34 chip and begins a listening
 // dhcp server.
-pico_prov_err_t pico_prov_begin();
+pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials);
 
 // Sorts the credentails retrieved from the pico fs system
 //

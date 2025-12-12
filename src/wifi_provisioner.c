@@ -47,7 +47,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
     return PICO_PROV_OK; 
 }
 
-pico_prov_err_t pico_prov_begin() {
+pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
     
     // set parameters for the access point
     const char *ssid = "anticipate_wifi";
@@ -61,7 +61,7 @@ pico_prov_err_t pico_prov_begin() {
     pico_dhcp_start();
 
     // init captive web portal
-    portal_server_t *portal_server = pico_captive_portal_init();
+    portal_server_t *portal_server = pico_captive_portal_init(credentials);
     if (!portal_server) {
         return PICO_PROV_ERR_PORTAL_INIT;
     }
