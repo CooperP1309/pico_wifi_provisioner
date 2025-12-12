@@ -4,6 +4,8 @@
 #define PORT 80
 #define BUF_SIZE 2048
 
+#include "wifi_provisioner.h"   // for credentials struct
+
 typedef struct {
     struct tcp_pcb *server_pcb;
     struct tcp_pcb *client_pcb;
@@ -13,6 +15,9 @@ typedef struct {
     int sent_len;
     int recv_len;
     int run_count;
+    
+    pico_prov_credentials_t *credentials;
+
 } portal_server_t;
 
 // The captive portal is a TCP server that sends and recieves HTTP frames.
@@ -57,6 +62,15 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
 // Extract wifi details provided in http response
 //
 // Given an http response, extract the wifi credentials and store them in a credentials struct.
-static void extract_wifi_login(void *arg);
+// Employs the get value funct with using relevant entry keys.
+static void get_wifi_login(void *arg);
+
+// Gets value of a field in a buffer given a key.
+//
+// Search for the key within a buffer. This function assumes the key in the buffer is proceeded
+// by an equals sign. When the index of the key is found, this function skips past the index of
+// the last character and equals sign and copies data to the provided output buffer.
+// It stops copying data when met with a terminating null or an ampersand.
+static void get_value(char *in_buffer, char *key, char *out_buffer);
 
 #endif // PICO_CAPTIVE_PORTAL_H

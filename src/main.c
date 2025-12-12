@@ -15,7 +15,7 @@ int main() {
 
     if (1 /*wifi_credentials->ssid[0] == '\0' || gpio_rst_btn_pressed()*/) {
         printf("[main] no credentials extracted, begining provisioning\n");
-        pico_prov_begin();
+        pico_prov_begin(&wifi_credentials);
     }
 
     while(1) {

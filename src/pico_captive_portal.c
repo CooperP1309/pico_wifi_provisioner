@@ -7,6 +7,7 @@
 
 // project headers
 #include "pico_captive_portal.h"
+#include "wifi_provisioner.h"   // for credentials struct
 
 // defining of http page
 const char *body =
@@ -159,8 +160,11 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     }
     pbuf_free(p);
 
+    // proccess buffer once fully recieved
     printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
+    get_wifi_login(arg);
 
+    // clear received buffer
     state->recv_len = 0;
     memcpy(state->buffer_recv, 0, BUF_SIZE);
 
@@ -169,10 +173,9 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
 
         // check it matches
         if (memcmp(state->buffer_sent, state->buffer_recv, BUF_SIZE) != 0) {
-            printf("buffer mismatch\n");
+            printf("[pico_captive_portal] buffer mismatch\n");
             return -1;
         }
-        printf("tcp_server_recv buffer ok\n");
 
         // Test complete?
         state->run_count++;
@@ -187,20 +190,62 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     return ERR_OK;
 }
 
-static void extract_wifi_login(void *arg) {
+static void get_wifi_login(void *arg) {
 
     portal_server_t *state = (portal_server_t*)arg;
+    
+    // extracting wifi ssid
+    char ssid[33];
 
-    // extracting wifi details
-    char *target_wifi = "wifi";
-    char *wifi_pointer = strstr(state->buffer_recv, target_wifi);
+    get_value(state->buffer_recv, "wifi=", ssid);
+    if (ssid[0] == '\0') {
+        printf("[pico_captive_portal] no ssid extracted\n");
+        return;
+    }
 
-    printf("[pico_captive_portal] wifi starts at %ld", (wifi_pointer - (char*)state->buffer_recv));
+    printf("[pico_captive_portal] extracted ssid: %s\n", ssid);
+/*
+    // extracting wifi password
+    get_value(state->buffer_recv, "password", credentials->password);
+    if (credentials->ssid == NULL) {
+        printf("[pico_captive_portal] no password extracted\n");
+        return;
+    }
 
-    // extracting password details 
-    // (note: we restart search index incase of bad http response)
-    char *target_password = "password";
-    char *password_pointer = strstr(state->buffer_recv, target_password); 
+    printf("[pico_captive_portal] extracted password: %s\n", credentials->password);
+    */
+}
 
-    printf("[pico_captive_portal] password letter at %ld", (password_pointer - (char*)state->buffer_recv));
+static void get_value(char *in_buffer, char *key, char *out_buffer) {
+
+    // initialize pointer to index of key in in_buffer
+    char *chr_ptr;
+    chr_ptr = strstr(in_buffer, key);
+    if (chr_ptr == NULL) {
+        printf("[pico_captive_portal] key \"%s\" not found\n", key);
+        return;
+    }
+
+    // determine which index after key to start reading from
+    uint8_t value_index = strlen(key);
+
+    printf("\nextracting value:\n");
+
+    // copy to out_buffer
+    uint8_t current_index = 0;
+    while (chr_ptr[value_index + current_index] != '\0' &&
+           chr_ptr[value_index + current_index] != '&' &&
+           chr_ptr[value_index + current_index] != ' ' &&
+           chr_ptr[value_index + current_index] != '\n') {
+
+        out_buffer[current_index] = chr_ptr[value_index + current_index];
+        printf("%c from index %d\n", out_buffer[current_index], current_index);
+        current_index++;
+    }
+
+    printf("\nIndex 0 of out_buffer PRE termination: %c\n", out_buffer[0]);
+    out_buffer[current_index] = '\0';
+    printf("\nIndex 0 of out_buffer POST termination: %c\n", out_buffer[0]);
+
+    printf("\n[pico_captive_portal] extracted value from key \"%s\": \"%s\"\n", key, out_buffer);                              
 }
