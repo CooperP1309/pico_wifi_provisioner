@@ -16,7 +16,7 @@ typedef struct {
     int recv_len;
     int run_count;
     
-    pico_prov_credentials_t *credentials;
+    pico_prov_credentials_t credentials;
 
 } portal_server_t;
 
@@ -32,7 +32,7 @@ typedef struct {
 // call back functions where the server struct is the only arg. The provisioners 
 // credential struct is also pointed to this instance for access of the data from memory
 // once the captive portal is done.
-portal_server_t* pico_captive_portal_init(pico_prov_credentials_t *wifi_credentials);
+portal_server_t* pico_captive_portal_init();
 
 // Starting of the captive server listening on tcp web port 80.
 //
@@ -82,6 +82,23 @@ static void get_value(char *in_buffer, char *key, char *out_buffer);
 //
 // Using strstr for "wifi=" and "password=", this function will return 1 if they
 // are both present and 0 if they are not.
-static uint8_t has_credentials(char *http_request);
+static uint8_t has_ssid(char *http_request);
+
+// Checks if a passed http request has POST it
+//
+// Using strstr, returns false/0 on NULL return and true/1 otherwise
+static uint8_t is_post(char *http_request);
+
+// Checks if a passed http request has GET it
+//
+// Using strstr, returns false/0 on NULL return and true/1 otherwise
+static uint8_t is_get(char *http_request);
+
+// Closes all pcb connections
+//
+// Sets all tcp callbacks to null and attemps to call tcp_close().
+// Calls tcp_abort() on fail and returns abrt error code in this case.
+// Returns ERR_OK otherwise.
+static err_t pico_captive_portal_close(void *arg);
 
 #endif // PICO_CAPTIVE_PORTAL_H

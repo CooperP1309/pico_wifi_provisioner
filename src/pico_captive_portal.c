@@ -9,8 +9,33 @@
 #include "pico_captive_portal.h"
 #include "wifi_provisioner.h"   // for credentials struct
 
-// defining of http page
-const char *body =
+// http header defintions
+static const char *HEADER_GET =
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: text/html\r\n"
+    "Content-Length: %d\r\n"
+    "Connection: close\r\n"
+    "\r\n";
+
+static const char *HEADER_REDIRECT =
+    "HTTP/1.1 303 See Other\r\n"
+    "Location: /\r\n"
+    "Cache-Control: no-store\r\n"
+    "Content-Length: 0\r\n"
+    "\r\n";
+
+// credentials status definitions
+static const char *PORTAL_STATUS_SSID =
+    "<div id=\"status\">Saved SSID (no password)</div>";
+
+static const char *PORTAL_STATUS_SSIDPWSD =
+    "<div id=\"status\">Saved SSID and password</div>";
+
+static const char *PORTAL_STATUS_NONE = 
+    "";
+
+// page body definition
+const char *PORTAL_PAGE_BODY =
     "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Login</title>"
     "<style>"
     "body{margin:0;font-family:Arial;background:#e9eef3;display:flex;justify-content:center;align-items:center;height:100vh;}"
@@ -20,6 +45,7 @@ const char *body =
     ".box input{padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;font-size:14px;}"
     ".box button{padding:10px;border:none;border-radius:6px;background:#007bff;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;}"
     ".box button:hover{background:#0056b3;}"
+    "#status{margin-top:10px;text-align:center;font-size:13px;color:#c00;}"
     "</style></head>"
     "<body><div class=\"box\">"
     "<h2>Anticipate - Wi-Fi Login</h2>"
@@ -29,11 +55,12 @@ const char *body =
     "<input class=\"full\" type=\"password\" name=\"password\" placeholder=\"Enter password\">"
     "<span style=\"position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:12px;color:#555\">*Optional</span>"
     "</div>"
+    "%STATUS%"
     "<button class=\"full\" type=\"submit\">Login</button>"
     "</form>"
     "</div></body></html>";
 
-portal_server_t* pico_captive_portal_init(pico_prov_credentials_t *wifi_credentials) {
+portal_server_t* pico_captive_portal_init() {
 
     // calloc call justified for setup process where time efficiency is low priority
     portal_server_t *captive_server = calloc(1, sizeof(portal_server_t));
@@ -41,11 +68,6 @@ portal_server_t* pico_captive_portal_init(pico_prov_credentials_t *wifi_credenti
     if (!captive_server) {
         return NULL;
     }
-
-    // allocate a new credentials struct and point to its address 
-    pico_prov_credentials_t credentials;
-    captive_server->credentials = &credentials;
-    wifi_credentials = &credentials;
 
     return captive_server;
 }
@@ -106,32 +128,74 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
     //tcp_err(client_pcb, tcp_server_err);
 
     return pico_captive_portal_send_data(arg, captive_server->client_pcb);
-    //return 0;
 }
 
 err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
     portal_server_t *captive_server = (portal_server_t*)arg;
-    
-    // initializing header
-    int body_len = strlen(body);
-    char header[256];
-    int header_len = snprintf(header, sizeof(header),
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: %d\r\n"
-        "Connection: close\r\n"
-        "\r\n", body_len);
 
-    memcpy(captive_server->buffer_sent, body, body_len);
+    // handle varying request types
+    if (is_get(captive_server->buffer_recv)) {
 
-    captive_server->sent_len = 0;
-    printf("[pico_captive_portal] writing %d bytes to client\n", (header_len + body_len));
+        // setting of credentials status (must precede setting of conent-length)
+        const char *status;
+        if (captive_server->credentials.ssid[0] != '\0' && 
+                    captive_server->credentials.password[0] == '\0') {
+            status = PORTAL_STATUS_SSID;
+        }
+        else if (captive_server->credentials.ssid[0] != '\0' &&
+                    captive_server->credentials.password[0] != '\0') {
+            status = PORTAL_STATUS_SSIDPWSD;
+        }
+        else {
+            status = PORTAL_STATUS_NONE;
+        }
 
-    cyw43_arch_lwip_check();
+        // split body where the status placeholder is in two
+        const char *status_placeholder = strstr(PORTAL_PAGE_BODY, "%STATUS%");
+        if (status_placeholder == NULL) {
+            return ERR_VAL;
+        }
 
-    tcp_write(client_pcb, header, header_len, TCP_WRITE_FLAG_COPY);
-    tcp_write(client_pcb, body, body_len, TCP_WRITE_FLAG_COPY);
+        size_t body_upper = status_placeholder - PORTAL_PAGE_BODY;
+        size_t body_lower = strlen(status_placeholder + strlen("%STATUS%"));
+
+        // setting of content-length
+        char header[256];
+        int body_len = strlen(PORTAL_PAGE_BODY) - strlen("%STATUS%") + strlen(status);
+        int header_len = snprintf(header, sizeof header, HEADER_GET, body_len);
+
+        printf("[pico_captive_portal] writing %d bytes to client\n", (header_len + strlen(status) + body_len));
+        cyw43_arch_lwip_check();
+        printf("\nIN SEND.get: Found ssid: %s\n", captive_server->credentials.ssid);
+
+        // clear received buffer and sent len
+        captive_server->recv_len = 0;
+        memset(captive_server->buffer_recv, 0, BUF_SIZE);
+        captive_server->sent_len = 0;
+
+        // writing of data to client (header -> upper body -> status -> lowerbody)
+        tcp_write(client_pcb, header, header_len, TCP_WRITE_FLAG_COPY);
+        tcp_write(client_pcb, PORTAL_PAGE_BODY, body_upper, TCP_WRITE_FLAG_COPY);
+        tcp_write(client_pcb, status, strlen(status), TCP_WRITE_FLAG_COPY);
+        tcp_write(client_pcb, status_placeholder + strlen("%STATUS%"), body_lower, TCP_WRITE_FLAG_COPY);
+
+        printf("\nIN SEND: Sent following status to client: %s\n", status);
+    }
+    else if (is_post(captive_server->buffer_recv)) {
+
+        const char *header = HEADER_REDIRECT;
+        
+        printf("[pico_captive_portal] writing %d bytes to client\n", strlen(header));
+        cyw43_arch_lwip_check();
+
+        // clear received buffer and sent len
+        captive_server->recv_len = 0;
+        memset(captive_server->buffer_recv, 0, BUF_SIZE);
+        captive_server->sent_len = 0;
+        
+        tcp_write(client_pcb, header, strlen(header), TCP_WRITE_FLAG_COPY);
+    }
 
     return ERR_OK;
 }
@@ -165,35 +229,17 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     pbuf_free(p);
 
     // process recieved buffer if credentials are present
-    if (has_credentials(state->buffer_recv)) {
+    if (has_ssid(state->buffer_recv)) {
+
+        // clear credentials prior to further reading
+        memset(&state->credentials, 0, sizeof(pico_prov_credentials_t));
+
         printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
         get_wifi_login(arg);
     }
 
-    // clear received buffer
-    state->recv_len = 0;
-    memcpy(state->buffer_recv, 0, BUF_SIZE);
-
-    // Have we have received the whole buffer
-    if (state->recv_len == BUF_SIZE) {
-
-        // check it matches
-        if (memcmp(state->buffer_sent, state->buffer_recv, BUF_SIZE) != 0) {
-            printf("[pico_captive_portal] buffer mismatch\n");
-            return -1;
-        }
-
-        // Test complete?
-        state->run_count++;
-        if (state->run_count >= 5) {
-            return ERR_OK;
-        }
-
-        // Send another buffer
-        return pico_captive_portal_send_data(arg, state->client_pcb);
-    }
-
-    return ERR_OK;
+    printf("\nIN RECV: About to send_data with ssid: %s\n", state->credentials.ssid);
+    return pico_captive_portal_send_data(arg, state->client_pcb);
 }
 
 static void get_wifi_login(void *arg) {
@@ -201,22 +247,22 @@ static void get_wifi_login(void *arg) {
     portal_server_t *state = (portal_server_t*)arg;
     
     // extracting wifi ssid
-    get_value(state->buffer_recv, "wifi=", state->credentials->ssid);
-    if (state->credentials->ssid[0] == '\0') {
+    get_value(state->buffer_recv, "wifi=", state->credentials.ssid);
+    if (state->credentials.ssid[0] == '\0') {
         printf("[pico_captive_portal] no ssid extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted ssid: \"%s\"\n", state->credentials->ssid);
+    printf("[pico_captive_portal] extracted ssid: \"%s\"\n", state->credentials.ssid);
 
     // extracting wifi password
-    get_value(state->buffer_recv, "password=", state->credentials->password);
-    if (state->credentials->ssid == NULL) {
+    get_value(state->buffer_recv, "password=", state->credentials.password);
+    if (state->credentials.ssid == NULL) {
         printf("[pico_captive_portal] no password extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted password: \"%s\"\n", state->credentials->password);
+    printf("[pico_captive_portal] extracted password: \"%s\"\n", state->credentials.password);
 }
 
 static void get_value(char *in_buffer, char *key, char *out_buffer) {
@@ -245,7 +291,7 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
     out_buffer[current_index] = '\0';
 }
 
-static uint8_t has_credentials(char *http_request) {
+static uint8_t has_ssid(char *http_request) {
 
     char *chr_ptr, *chr_ptr1;
     chr_ptr = strstr(http_request, "wifi=");
@@ -255,4 +301,60 @@ static uint8_t has_credentials(char *http_request) {
     }
 
     return 1;
+}
+
+static uint8_t is_post(char *http_request) {
+
+    char *chr_ptr, *chr_ptr1;
+    chr_ptr = strstr(http_request, "POST");
+
+    if (chr_ptr == NULL) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static uint8_t is_get(char *http_request) {
+
+    char *chr_ptr, *chr_ptr1;
+    chr_ptr = strstr(http_request, "GET");
+
+    if (chr_ptr == NULL) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static err_t pico_captive_portal_close(void *arg) {
+    
+    portal_server_t *captive_server = (portal_server_t*)arg;
+    
+    if (captive_server->server_pcb) {
+        tcp_arg(captive_server->server_pcb, NULL);
+        tcp_close(captive_server->server_pcb);
+        captive_server->server_pcb = NULL;
+    }
+
+    if (captive_server->client_pcb != NULL) {
+        tcp_arg(captive_server->client_pcb, NULL);
+        tcp_sent(captive_server->client_pcb, NULL);
+        tcp_recv(captive_server->client_pcb, NULL);
+
+        captive_server->client_pcb = NULL;
+
+        if (tcp_close(captive_server->client_pcb) != ERR_OK) {
+            printf("[pico_captive_portal] Error closing captive portal. Calling abort()\n");
+            tcp_abort(captive_server->client_pcb);
+
+            return ERR_ABRT;
+        }
+    }
+
+    
+    printf("[pico_captive_portal] Captive portal closed successfully\n");
+
+    
+    return 0;
 }
