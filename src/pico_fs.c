@@ -76,7 +76,7 @@ int pico_fs_write_file(const char* file_name, char* buffer, int buf_len) {
         return -1;
     }
 
-    printf("[pico_fs] %d bytes written to file\n", bytes_written);
+    printf("[pico_fs] %d bytes written to cache\n", bytes_written);
 
     if (pico_close(fp) < 0) {
         printf("[pico_fs] error closing file\n");

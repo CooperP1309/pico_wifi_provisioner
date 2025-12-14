@@ -91,9 +91,20 @@ pico_prov_err_t pico_prov_end(pico_prov_credentials_t *wifi_credentials) {
 
     // writing to flash storage
     char *final_credentials_buffer;
-    final_credentials_buffer = strcat(wifi_credentials->ssid, " ");
-    final_credentials_buffer = strcat(final_credentials_buffer, wifi_credentials->password);
-    pico_fs_write_file(CREDENTIALS_PATH, final_credentials_buffer, strlen(final_credentials_buffer));
+
+    if (wifi_credentials->password == "\0") {
+        final_credentials_buffer = wifi_credentials->ssid;
+    }
+    else {
+        final_credentials_buffer = strcat(wifi_credentials->ssid, " ");
+        final_credentials_buffer = strcat(final_credentials_buffer, wifi_credentials->password);
+    }
+    uint8_t err = pico_fs_write_file(CREDENTIALS_PATH, final_credentials_buffer, strlen(final_credentials_buffer));
+
+    if (err == -1) {
+        printf("[pico_prov] failed to write to file\n");
+        return PICO_PROV_ERR_FS_WRITE;
+    }
 
     return PICO_PROV_OK;
 }

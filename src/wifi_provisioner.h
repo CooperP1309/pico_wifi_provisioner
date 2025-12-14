@@ -18,8 +18,9 @@ typedef enum {
     PICO_PROV_ERR_FS_UMOUNT     = -5,
     PICO_PROV_ERR_PORTAL_INIT   = -6,
     PICO_PROV_ERR_PORTAL_START  = -7,
-    PICO_PROV_ERR_PORTAL_CONN   = -8
-
+    PICO_PROV_ERR_PORTAL_CONN   = -8,
+    PICO_PROV_ERR_FS_WRITE      = -9
+    
 } pico_prov_err_t;
 
 typedef struct {
