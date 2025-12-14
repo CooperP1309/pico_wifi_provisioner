@@ -327,9 +327,7 @@ static uint8_t is_get(char *http_request) {
     return 1;
 }
 
-static err_t pico_captive_portal_close(void *arg) {
-    
-    portal_server_t *captive_server = (portal_server_t*)arg;
+err_t pico_captive_portal_close(portal_server_t *captive_server) {
     
     if (captive_server->server_pcb) {
         tcp_arg(captive_server->server_pcb, NULL);

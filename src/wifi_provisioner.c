@@ -11,7 +11,9 @@
 
 // buffer length = 
 // max length of SSID (32 chars) + space + max length of password(63) = 96
-char credentials_buffer[96] = {0};  
+char credentials_buffer[96] = {0}; 
+
+portal_server_t *portal_server;
 
 pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
     
@@ -61,7 +63,7 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
     pico_dhcp_start();
 
     // init captive web portal
-    portal_server_t *portal_server = pico_captive_portal_init(credentials);
+    portal_server = pico_captive_portal_init(credentials);
     if (!portal_server) {
         return PICO_PROV_ERR_PORTAL_INIT;
     }
@@ -72,6 +74,26 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
     }
 
     printf("[pico_prov] captive web portal listening on: http://192.168.4.1:80/\n");
+
+    return PICO_PROV_OK;
+}
+
+pico_prov_err_t pico_prov_end(pico_prov_credentials_t *wifi_credentials) {
+
+    // end web portal
+    pico_captive_portal_close(portal_server);
+
+    // end dhcp server
+    pico_dhcp_stop();
+
+    // disable access point
+    cyw43_arch_disable_ap_mode();
+
+    // writing to flash storage
+    char *final_credentials_buffer;
+    final_credentials_buffer = strcat(wifi_credentials->ssid, " ");
+    final_credentials_buffer = strcat(final_credentials_buffer, wifi_credentials->password);
+    pico_fs_write_file(CREDENTIALS_PATH, final_credentials_buffer, strlen(final_credentials_buffer));
 
     return PICO_PROV_OK;
 }

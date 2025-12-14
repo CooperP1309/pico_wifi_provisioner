@@ -38,5 +38,7 @@ void pico_dhcp_start() {
 
 int pico_dhcp_stop() {
 
+    dhcp_server_deinit(&dhcp_server);
+
     return 0;
 }

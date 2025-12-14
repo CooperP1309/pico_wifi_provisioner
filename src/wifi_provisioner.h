@@ -44,6 +44,12 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials);
 // has data in it.
 pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials);
 
+// Stops all provisioning systems and writes credentials to pico
+//
+// Stops captive portal, dhcp server and end pico AP.
+// Finally, writes passed credentials to flash storage. 
+pico_prov_err_t pico_prov_end(pico_prov_credentials_t *credentials);
+
 // Sorts the credentails retrieved from the pico fs system
 //
 // Where the format of the extracted credentials is a single char array,
