@@ -35,10 +35,13 @@ typedef struct {
 // credentials from file (will leave password and/or ssid blank if needed).
 pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials);
 
-// Begins wifi access point
+// Begins wifi access point and the wifi login portal
 //
-// Activates the AP on the cyw34 chip and begins a listening
-// dhcp server.
+// Activates the AP on the cyw34 chip, begins a dhcp server and the tcp http
+// captive portal server. This tcp server will keep running, and modify the
+// passed credentials object when recieved from the web portal. 
+// To use, keep polling with cyw43_arch_poll() until your passed credentials buffer
+// has data in it.
 pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials);
 
 // Sorts the credentails retrieved from the pico fs system

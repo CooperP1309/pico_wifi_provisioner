@@ -18,10 +18,12 @@ int main() {
         pico_prov_begin(&wifi_credentials);
     }
 
-    while(1) {
+    while(wifi_credentials.ssid[0] == '\0') {
         cyw43_arch_poll();
         sleep_ms(1);
     }
+
+    printf("\nI'm FREEEEEEEEE\n");
  
     return 0;
 }

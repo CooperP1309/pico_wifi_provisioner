@@ -352,9 +352,7 @@ static err_t pico_captive_portal_close(void *arg) {
         }
     }
 
-    
     printf("[pico_captive_portal] Captive portal closed successfully\n");
-
     
     return 0;
 }
