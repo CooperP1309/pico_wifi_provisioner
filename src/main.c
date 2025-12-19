@@ -8,27 +8,29 @@ int main() {
 
     // declare an empty credential instance
     pico_prov_credentials_t wifi_credentials = {0};
-    pico_prov_credentials_t wifi_credentials1 = {0};
 
     // initialize all necessary systems + wifi credentials
     if (pico_prov_init(&wifi_credentials) != PICO_PROV_OK) {
         return -1;
     }
 
+    printf("\nMAIN() &SSID=%d\n", &wifi_credentials.ssid);
+
     // set case for beginning provisioning
     if (1 /*wifi_credentials->ssid[0] == '\0' || gpio_rst_btn_pressed()*/) {
         printf("[main] no credentials extracted, begining provisioning\n");
-        pico_prov_begin(&wifi_credentials1);
+        pico_prov_begin(&wifi_credentials);
     }
 
     // set case for polling wifi chip (further polls captive portal)
-    while(wifi_credentials1.ssid[0] == '\0') {
+    while(1) {
         cyw43_arch_poll();
-        sleep_ms(1);
+        sleep_ms(2000);
+        printf("[main] Current SSID state = %s\n", wifi_credentials.ssid);
     }
 
     // end pico provisioning (stores passed credentials to flash storage)
-    pico_prov_end(&wifi_credentials1);
+    pico_prov_end(&wifi_credentials);
  
     return 0;
 }

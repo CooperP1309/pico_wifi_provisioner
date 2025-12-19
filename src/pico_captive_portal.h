@@ -15,8 +15,6 @@ typedef struct {
     int sent_len;
     int recv_len;
     int run_count;
-    
-    pico_prov_credentials_t credentials;
 
 } portal_server_t;
 
@@ -39,7 +37,7 @@ portal_server_t* pico_captive_portal_init();
 // Declare a new pcb instance, hook it up to the IP available on the wifi chip,
 // bind it to port 80 and begin listening on it. Point the server pcb pointer
 // to the listening pcb instance.
-int pico_captive_portal_start(portal_server_t *captive_server);
+int pico_captive_portal_start(portal_server_t *captive_server, pico_prov_credentials_t *credentials);
 
 // Call back function for accepted requests.
 //

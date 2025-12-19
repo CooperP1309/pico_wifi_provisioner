@@ -62,14 +62,16 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
     // begin listening dhcp server
     pico_dhcp_start();
 
+    printf("\nPROV_BEGIN() &SSID=%d\n", &credentials->ssid);
+
     // init captive web portal
-    portal_server = pico_captive_portal_init(credentials);
+    portal_server = pico_captive_portal_init();
     if (!portal_server) {
         return PICO_PROV_ERR_PORTAL_INIT;
     }
 
     // starting of web portal
-    if (pico_captive_portal_start(portal_server) < 0) {
+    if (pico_captive_portal_start(portal_server, credentials) < 0) {
         return PICO_PROV_ERR_PORTAL_START;
     }
 

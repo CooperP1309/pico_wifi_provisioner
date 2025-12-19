@@ -60,6 +60,8 @@ const char *PORTAL_PAGE_BODY =
     "</form>"
     "</div></body></html>";
 
+    pico_prov_credentials_t *wifi_credentials;
+
 portal_server_t* pico_captive_portal_init() {
 
     // calloc call justified for setup process where time efficiency is low priority
@@ -72,7 +74,7 @@ portal_server_t* pico_captive_portal_init() {
     return captive_server;
 }
 
-int pico_captive_portal_start(portal_server_t *captive_server) {
+int pico_captive_portal_start(portal_server_t *captive_server, pico_prov_credentials_t *credentials) {
 
     // declare new pcb instance for both ipv4 and ipv6
     struct tcp_pcb *pcb = tcp_new_ip_type(IPADDR_TYPE_ANY);
@@ -98,6 +100,8 @@ int pico_captive_portal_start(portal_server_t *captive_server) {
 
         return -1;
     }
+
+    wifi_credentials = credentials;
 
     printf("[pico_captive_portal] web portal server listening on port 80\n");
 
@@ -127,7 +131,9 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
     //tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
     //tcp_err(client_pcb, tcp_server_err);
 
-    return pico_captive_portal_send_data(arg, captive_server->client_pcb);
+    pico_captive_portal_send_data(arg, captive_server->client_pcb);
+
+    return ERR_OK;
 }
 
 err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
@@ -139,12 +145,12 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
         // setting of credentials status (must precede setting of conent-length)
         const char *status;
-        if (captive_server->credentials.ssid[0] != '\0' && 
-                    captive_server->credentials.password[0] == '\0') {
+        if (wifi_credentials->ssid[0] != '\0' && 
+                    wifi_credentials->password[0] == '\0') {
             status = PORTAL_STATUS_SSID;
         }
-        else if (captive_server->credentials.ssid[0] != '\0' &&
-                    captive_server->credentials.password[0] != '\0') {
+        else if (wifi_credentials->ssid[0] != '\0' &&
+                    wifi_credentials->password[0] != '\0') {
             status = PORTAL_STATUS_SSIDPWSD;
         }
         else {
@@ -167,7 +173,7 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
         printf("[pico_captive_portal] writing %d bytes to client\n", (header_len + strlen(status) + body_len));
         cyw43_arch_lwip_check();
-        printf("\nIN SEND.get: Found ssid: %s\n", captive_server->credentials.ssid);
+        printf("\nIN SEND.get: Found ssid: %s\n", wifi_credentials->ssid);
 
         // clear received buffer and sent len
         captive_server->recv_len = 0;
@@ -232,40 +238,44 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     if (has_ssid(state->buffer_recv)) {
 
         // clear credentials prior to further reading
-        memset(&state->credentials, 0, sizeof(pico_prov_credentials_t));
+        memset(wifi_credentials, 0, sizeof(pico_prov_credentials_t));
 
         printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
         get_wifi_login(arg);
     }
 
-    printf("\nIN RECV: About to send_data with ssid: %s\n", state->credentials.ssid);
+    printf("\nIN RECV: About to send_data with ssid: %s\n", wifi_credentials->ssid);
     return pico_captive_portal_send_data(arg, state->client_pcb);
 }
 
 static void get_wifi_login(void *arg) {
 
     portal_server_t *state = (portal_server_t*)arg;
-    
+
+    printf("\nGET_WIFI() &SSID=%d\n", &wifi_credentials->ssid);
+
     // extracting wifi ssid
-    get_value(state->buffer_recv, "wifi=", state->credentials.ssid);
-    if (state->credentials.ssid[0] == '\0') {
+    get_value(state->buffer_recv, "wifi=", wifi_credentials->ssid);
+    if (wifi_credentials->ssid[0] == '\0') {
         printf("[pico_captive_portal] no ssid extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted ssid: \"%s\"\n", state->credentials.ssid);
+    printf("[pico_captive_portal] extracted ssid: \"%s\"\n", wifi_credentials->ssid);
 
     // extracting wifi password
-    get_value(state->buffer_recv, "password=", state->credentials.password);
-    if (state->credentials.ssid == NULL) {
+    get_value(state->buffer_recv, "password=", wifi_credentials->password);
+    if (wifi_credentials->ssid == NULL) {
         printf("[pico_captive_portal] no password extracted\n");
         return;
     }
 
-    printf("[pico_captive_portal] extracted password: \"%s\"\n", state->credentials.password);
+    printf("[pico_captive_portal] extracted password: \"%s\"\n", wifi_credentials->password);
 }
 
 static void get_value(char *in_buffer, char *key, char *out_buffer) {
+
+    //printf("\nGETVAL() &SSID=%d", &out_buffer);
 
     // initialize pointer to index of key in in_buffer
     char *chr_ptr;
@@ -286,9 +296,11 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
            chr_ptr[value_index + current_index] != '\n') {
 
         out_buffer[current_index] = chr_ptr[value_index + current_index];
+        printf("\nAssigned %c to ssid[%d]", out_buffer[current_index], current_index);
         current_index++;
     }
     out_buffer[current_index] = '\0';
+    printf("\nAssign \\0 to ssid[%d]\n", current_index);
 }
 
 static uint8_t has_ssid(char *http_request) {
