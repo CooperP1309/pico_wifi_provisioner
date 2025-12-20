@@ -15,7 +15,7 @@ set(PICO_EXAMPLES_PATH "$ENV{HOME}/pico/pico-examples" CACHE PATH "Path to the p
 
 # ---- sourcing of executables ----
 add_executable(pico_wifi_provision    
-    src/main.c
+    src/example_main.c
     src/wifi_provisioner.c
     src/pico_fs.c
     ${PICO_EXAMPLES_PATH}/pico_w/wifi/access_point/dhcpserver/dhcpserver.c
@@ -25,7 +25,7 @@ add_executable(pico_wifi_provision
 
 # ---- adding library files ----
 # There are 3 stages to doing this...
-# 1. targeting where the header files in main.c are
+# 1. targeting where the header files in example_main.c are
 # 2. compiling said files
 # 3. linking of the compiled files
 
