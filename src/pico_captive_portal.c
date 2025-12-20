@@ -66,7 +66,7 @@ portal_server_t* pico_captive_portal_init() {
 
     // calloc call justified for setup process where time efficiency is low priority
     portal_server_t *captive_server = calloc(1, sizeof(portal_server_t));
-    
+
     if (!captive_server) {
         return NULL;
     }
@@ -148,13 +148,16 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
         if (wifi_credentials->ssid[0] != '\0' && 
                     wifi_credentials->password[0] == '\0') {
             status = PORTAL_STATUS_SSID;
+            wifi_credentials->ssid_state = 1;
         }
         else if (wifi_credentials->ssid[0] != '\0' &&
                     wifi_credentials->password[0] != '\0') {
             status = PORTAL_STATUS_SSIDPWSD;
+            wifi_credentials->ssid_state = 1;
         }
         else {
             status = PORTAL_STATUS_NONE;
+            wifi_credentials->ssid_state = 0;
         }
 
         // split body where the status placeholder is in two
@@ -173,7 +176,6 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
 
         printf("[pico_captive_portal] writing %d bytes to client\n", (header_len + strlen(status) + body_len));
         cyw43_arch_lwip_check();
-        printf("\nIN SEND.get: Found ssid: %s\n", wifi_credentials->ssid);
 
         // clear received buffer and sent len
         captive_server->recv_len = 0;
@@ -185,8 +187,6 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
         tcp_write(client_pcb, PORTAL_PAGE_BODY, body_upper, TCP_WRITE_FLAG_COPY);
         tcp_write(client_pcb, status, strlen(status), TCP_WRITE_FLAG_COPY);
         tcp_write(client_pcb, status_placeholder + strlen("%STATUS%"), body_lower, TCP_WRITE_FLAG_COPY);
-
-        printf("\nIN SEND: Sent following status to client: %s\n", status);
     }
     else if (is_post(captive_server->buffer_recv)) {
 
@@ -244,15 +244,12 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
         get_wifi_login(arg);
     }
 
-    printf("\nIN RECV: About to send_data with ssid: %s\n", wifi_credentials->ssid);
     return pico_captive_portal_send_data(arg, state->client_pcb);
 }
 
 static void get_wifi_login(void *arg) {
 
     portal_server_t *state = (portal_server_t*)arg;
-
-    printf("\nGET_WIFI() &SSID=%d\n", &wifi_credentials->ssid);
 
     // extracting wifi ssid
     get_value(state->buffer_recv, "wifi=", wifi_credentials->ssid);
@@ -275,8 +272,6 @@ static void get_wifi_login(void *arg) {
 
 static void get_value(char *in_buffer, char *key, char *out_buffer) {
 
-    //printf("\nGETVAL() &SSID=%d", &out_buffer);
-
     // initialize pointer to index of key in in_buffer
     char *chr_ptr;
     chr_ptr = strstr(in_buffer, key);
@@ -296,11 +291,9 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
            chr_ptr[value_index + current_index] != '\n') {
 
         out_buffer[current_index] = chr_ptr[value_index + current_index];
-        printf("\nAssigned %c to ssid[%d]", out_buffer[current_index], current_index);
         current_index++;
     }
     out_buffer[current_index] = '\0';
-    printf("\nAssign \\0 to ssid[%d]\n", current_index);
 }
 
 static uint8_t has_ssid(char *http_request) {

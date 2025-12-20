@@ -1,6 +1,6 @@
 // library headers
 #include <stdio.h>
-#include "pico/stdlib.h"        // sleep_ms, stdio...
+#include "pico/stdlib.h"        // sleep_ms,i ssid_ stdio...
 #include "pico/cyw43_arch.h"    // wifi chip library
 
 // project headers
@@ -11,7 +11,7 @@
 
 // buffer length = 
 // max length of SSID (32 chars) + space + max length of password(63) = 96
-char credentials_buffer[96] = {0}; 
+char credentials_buffer[96] = {0};
 
 portal_server_t *portal_server;
 
@@ -24,7 +24,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
 
     sleep_ms(2000);
 
-    // indication of initialization via both serial output and led 
+    // indication of initialization via both serial output and led
     printf("\n[pico_prov] intializing\n");
     blink(250);
     blink(250);
@@ -35,7 +35,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
         return PICO_PROV_ERR_FS_MOUNT;
     }
 
-    // actual reading of credentials file  
+    // actual reading of credentials file
     if (pico_fs_read_file(CREDENTIALS_PATH, credentials_buffer, 96) < 0) {
         printf("[pico_prov] reading from file failed\n");
         return PICO_PROV_ERR_FS_READ;
@@ -46,7 +46,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
     printf("[pico_prov] extracted credentials: %s\n", credentials_buffer);
     fflush(stdout);
 
-    return PICO_PROV_OK; 
+    return PICO_PROV_OK;
 }
 
 pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
@@ -61,8 +61,6 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
 
     // begin listening dhcp server
     pico_dhcp_start();
-
-    printf("\nPROV_BEGIN() &SSID=%d\n", &credentials->ssid);
 
     // init captive web portal
     portal_server = pico_captive_portal_init();

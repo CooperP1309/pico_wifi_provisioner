@@ -18,25 +18,16 @@ typedef struct {
 
 } portal_server_t;
 
-// The captive portal is a TCP server that sends and recieves HTTP frames.
-// Hence, we use the tcp library from the lwip stack for handling sockets.
-
 // Initializing the tcp server.
 //
-// We declare a new portal server instance on the heap via calloc.
-// Error if new instance failed. Furthermore, a pico_prov_credentials struct
-// is allocated and the credentials pointer in the portal_server struct is pointed
-// to this new credential instance. This allows for modifying of the struct through
-// call back functions where the server struct is the only arg. The provisioners 
-// credential struct is also pointed to this instance for access of the data from memory
-// once the captive portal is done.
+// Heap allocates a new portal server instance.
+// Error if new instance failed.
 portal_server_t* pico_captive_portal_init();
 
 // Starting of the captive server listening on tcp web port 80.
 //
-// Declare a new pcb instance, hook it up to the IP available on the wifi chip,
-// bind it to port 80 and begin listening on it. Point the server pcb pointer
-// to the listening pcb instance.
+// Starts a listening TCP HTTP PCB (say that ten times) on port 80. And points
+// 
 int pico_captive_portal_start(portal_server_t *captive_server, pico_prov_credentials_t *credentials);
 
 // Call back function for accepted requests.
@@ -70,9 +61,9 @@ static void get_wifi_login(void *arg);
 
 // Gets value of a field in a buffer given a key.
 //
-// Search for the key within a buffer. When the index of the key is found, 
-// this function skips past the index of the last character and equals sign 
-// and copies data to the provided output buffer. It stops copying data when 
+// Search for the key within a buffer. When the index of the key is found,
+// this function skips past the index of the last character and equals sign
+// and copies data to the provided output buffer. It stops copying data when
 // met with a terminating null or an ampersand.
 static void get_value(char *in_buffer, char *key, char *out_buffer);
 
