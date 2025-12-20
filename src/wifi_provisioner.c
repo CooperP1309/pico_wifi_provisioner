@@ -80,22 +80,16 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
 
 pico_prov_err_t pico_prov_end(pico_prov_credentials_t *wifi_credentials) {
 
-    // end web portal
+    // end listening servers
     pico_captive_portal_close(portal_server);
-
-    // end dhcp server
     pico_dhcp_stop();
-
-    // disable access point
     cyw43_arch_disable_ap_mode();
 
     // writing to flash storage
-    char *final_credentials_buffer;
+    char *final_credentials_buffer = wifi_credentials->ssid;
 
-    if (wifi_credentials->password == "\0") {
-        final_credentials_buffer = wifi_credentials->ssid;
-    }
-    else {
+    // append buffer depending on if a password is included
+    if (wifi_credentials->password[0] != '\0') {
         final_credentials_buffer = strcat(wifi_credentials->ssid, " ");
         final_credentials_buffer = strcat(final_credentials_buffer, wifi_credentials->password);
     }

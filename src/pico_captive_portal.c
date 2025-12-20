@@ -334,6 +334,7 @@ static uint8_t is_get(char *http_request) {
 
 err_t pico_captive_portal_close(portal_server_t *captive_server) {
     
+    // deallocating of tcp_() callbacks
     if (captive_server->server_pcb) {
         tcp_arg(captive_server->server_pcb, NULL);
         tcp_close(captive_server->server_pcb);
@@ -354,6 +355,9 @@ err_t pico_captive_portal_close(portal_server_t *captive_server) {
             return ERR_ABRT;
         }
     }
+
+    // ensuring global credentials pointer is pointing to NULL again
+    wifi_credentials = NULL;
 
     printf("[pico_captive_portal] Captive portal closed successfully\n");
     

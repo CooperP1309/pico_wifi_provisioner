@@ -25,19 +25,21 @@ int main() {
         }
 
         // set case for polling wifi chip (further polls captive portal)
-        while(wifi_credentials.ssid_state == 0/*wifi_credentials.ssid[0] == '\0'*/) {
+        while(wifi_credentials.ssid_state == 0) {
             cyw43_arch_poll();
             sleep_ms(1);
         }
 
-        printf("\nIM FREE\n");
-        /*
         // end pico provisioning (stores passed credentials to flash storage)
         err = pico_prov_end(&wifi_credentials);
         if (err != PICO_PROV_OK) {
+            printf("[main] pico_prov_end returned error code: %d\n", err);
             return err;
         }
-        */
+    }
+    else {
+        printf("[main] attempting wifi connection with credentials\n  ssid: \"%s\"\n  password: \"%s\"\n",
+                wifi_credentials.ssid, wifi_credentials.password);
     }
  
     return 0;

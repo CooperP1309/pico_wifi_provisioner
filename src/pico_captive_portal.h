@@ -87,7 +87,8 @@ static uint8_t is_get(char *http_request);
 //
 // Sets all tcp callbacks to null and attemps to call tcp_close().
 // Calls tcp_abort() on fail and returns abrt error code in this case.
-// Returns ERR_OK otherwise.
+// Returns ERR_OK otherwise. Also points the global credentials pointer
+// back to null.
 err_t pico_captive_portal_close(portal_server_t *portal_server);
 
 #endif // PICO_CAPTIVE_PORTAL_H
