@@ -215,7 +215,7 @@ err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 
 err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
 
-    portal_server_t *state = (portal_server_t*)arg;
+    portal_server_t *captive_server = (portal_server_t*)arg;
     if (!p) {
         return -1;
     }
@@ -224,35 +224,35 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     if (p->tot_len > 0) {
 
         // Receive the buffer
-        const uint16_t buffer_left = BUF_SIZE - state->recv_len;
-        state->recv_len += pbuf_copy_partial(p, state->buffer_recv + state->recv_len,
+        const uint16_t buffer_left = BUF_SIZE - captive_server->recv_len;
+        captive_server->recv_len += pbuf_copy_partial(p, captive_server->buffer_recv + captive_server->recv_len,
                                              p->tot_len > buffer_left ? buffer_left : p->tot_len, 0);
         tcp_recved(tpcb, p->tot_len);
 
         // terminate string at end of recieved data
-        state->buffer_recv[state->recv_len] = '\0';
+        captive_server->buffer_recv[captive_server->recv_len] = '\0';
     }
     pbuf_free(p);
 
     // process recieved buffer if credentials are present
-    if (has_ssid(state->buffer_recv)) {
+    if (has_ssid(captive_server->buffer_recv)) {
 
         // clear credentials prior to further reading
         memset(wifi_credentials, 0, sizeof(pico_prov_credentials_t));
 
-        printf("[pico_captive_portal] recieved bufer:\n%s\n", state->buffer_recv);
+        printf("[pico_captive_portal] recieved bufer:\n%s\n", captive_server->buffer_recv);
         get_wifi_login(arg);
     }
 
-    return pico_captive_portal_send_data(arg, state->client_pcb);
+    return pico_captive_portal_send_data(arg, captive_server->client_pcb);
 }
 
 static void get_wifi_login(void *arg) {
 
-    portal_server_t *state = (portal_server_t*)arg;
+    portal_server_t *captive_server = (portal_server_t*)arg;
 
     // extracting wifi ssid
-    get_value(state->buffer_recv, "wifi=", wifi_credentials->ssid);
+    get_value(captive_server->buffer_recv, "wifi=", wifi_credentials->ssid);
     if (wifi_credentials->ssid[0] == '\0') {
         printf("[pico_captive_portal] no ssid extracted\n");
         return;
@@ -261,7 +261,7 @@ static void get_wifi_login(void *arg) {
     printf("[pico_captive_portal] extracted ssid: \"%s\"\n", wifi_credentials->ssid);
 
     // extracting wifi password
-    get_value(state->buffer_recv, "password=", wifi_credentials->password);
+    get_value(captive_server->buffer_recv, "password=", wifi_credentials->password);
     if (wifi_credentials->ssid == NULL) {
         printf("[pico_captive_portal] no password extracted\n");
         return;
@@ -334,6 +334,9 @@ static uint8_t is_get(char *http_request) {
 
 err_t pico_captive_portal_close(portal_server_t *captive_server) {
     
+    // ensuring global credentials pointer is pointing to NULL again
+    wifi_credentials = NULL;
+
     // deallocating of tcp_() callbacks
     if (captive_server->server_pcb) {
         tcp_arg(captive_server->server_pcb, NULL);
@@ -355,9 +358,6 @@ err_t pico_captive_portal_close(portal_server_t *captive_server) {
             return ERR_ABRT;
         }
     }
-
-    // ensuring global credentials pointer is pointing to NULL again
-    wifi_credentials = NULL;
 
     printf("[pico_captive_portal] Captive portal closed successfully\n");
     

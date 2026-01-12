@@ -12,6 +12,7 @@ int main() {
     // initialize all necessary systems + wifi credentials
     err = pico_prov_init(&wifi_credentials);
     if (err != PICO_PROV_OK) {
+        printf("[main] pico_prov_init returned error code: %d\n", err);
         return err;
     }
 
@@ -38,9 +39,9 @@ int main() {
         }
     }
     else {
-        printf("[main] attempting wifi connection with credentials\n  ssid: \"%s\"\n  password: \"%s\"\n",
-                wifi_credentials.ssid, wifi_credentials.password);
+        printf("[main] attempting wifi connection with credentials\n");
+        printf("    ssid: \"%s\"\n    password: \"%s\"\n", wifi_credentials.ssid, wifi_credentials.password);
     }
- 
+
     return 0;
 }

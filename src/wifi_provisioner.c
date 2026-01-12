@@ -43,7 +43,7 @@ pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
 
     // processing retrieved credentials
     sort_credentials_buffer(wifi_credentials);
-    printf("[pico_prov] extracted credentials: %s\n", credentials_buffer);
+    printf("[pico_prov] credentials read from flash storage: \"%s\"\n", credentials_buffer);
     fflush(stdout);
 
     return PICO_PROV_OK;
@@ -53,7 +53,7 @@ pico_prov_err_t pico_prov_begin(pico_prov_credentials_t *credentials) {
     
     // set parameters for the access point
     const char *ssid = "pico_wifi";
-    const char *password = "pico123";
+    const char *password = "pico1234";
     
     // start access point
     cyw43_arch_enable_ap_mode(ssid, password, CYW43_AUTH_WPA2_MIXED_PSK);
