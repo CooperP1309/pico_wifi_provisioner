@@ -1,21 +1,24 @@
 <h1>Wifi Provisioning for the Raspberry Pico Pi W</h1>
 
-<h2>Usage Note</h2>
+<h2>About</h2>
 
-This is an educational project for me to learn the essentials of embedded C. Please refrain from
-using this code for anything other than hobby projects.
-
-This has only been tested on the Pico Pi W, not the Pico Pi W 2. Although they use the same wifi chip so no reason it wouldn't work.
+A deployment-ready software module for IoT projects on the Raspberry Pi Pico. To acheive a working captive portal, this project integrates a DHCP server. 
+Once credentials are recieved from a user, flash storage is then used to access/store credentials for future use. 
 
 <h2>How To Build</h2>
 
 To build this project, you must have the pico-sdk installed properly.
 
-IF: You're building from a raspberry Pi use the following setup script:
+IF: You're building from a raspberry Pi (as a PC to develop on) use the following setup script:
 https://raw.githubusercontent.com/raspberrypi/pico-setup/master/pico_setup.sh
 
-IF: You're building from a linux PC see page 32 "Manually Configure your Environment":
+IF: You're building from a linux environment see page 32 "Manually Configure your Environment":
 https://pip-assets.raspberrypi.com/categories/610-raspberry-pi-pico/documents/RP-008276-DS-1-getting-started-with-pico.pdf?disposition=inline
+
+<h2>Example Project that Uses this Module</h2>
+
+This module is currently used in my IoT project 'Anticipate'. You can see how this module is used under 'anticipate\pico\wifi_provisioner':
+https://github.com/spham52/anticipate
 
 <h2>Psuedo Code</h2>
 
