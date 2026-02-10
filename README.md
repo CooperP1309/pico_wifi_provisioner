@@ -20,6 +20,8 @@ https://pip-assets.raspberrypi.com/categories/610-raspberry-pi-pico/documents/RP
 This module is currently used in my IoT project 'Anticipate'. You can see how this module is used under 'anticipate\pico\wifi_provisioner':
 https://github.com/spham52/anticipate
 
+The only API functions required for this module are all used in main, and are preceded by 'pico_prov_...()'
+
 <h2>Psuedo Code</h2>
 
 WIFI PROVISIONING:
