@@ -16,13 +16,6 @@ char credentials_buffer[96] = {0};
 portal_server_t *portal_server;
 
 pico_prov_err_t pico_prov_init(pico_prov_credentials_t *wifi_credentials) {
-    
-    // stdio and wifi chip inits
-    if (stdio_init_all() < 0 || cyw43_arch_init() < 0) {
-        return PICO_PROV_ERR_INIT;
-    }
-
-    sleep_ms(2000);
 
     // indication of initialization via both serial output and led
     printf("\n[pico_prov] intializing\n");

@@ -3,13 +3,21 @@
 #include "pico/cyw43_arch.h"    // wifi chip library
 
 #include "wifi_provisioner.h"
+#include "wl_log.h"
 
 int main() {
 
     pico_prov_err_t err;
     pico_prov_credentials_t wifi_credentials = {0};
 
-    // initialize all necessary systems + wifi credentials
+    // initialize all necessary sub systems
+    if (stdio_init_all() < 0 || cyw43_arch_init() < 0) {
+        return -1;
+    }
+    sleep_ms(2000);
+    wl_log_init();
+
+
     err = pico_prov_init(&wifi_credentials);
     if (err != PICO_PROV_OK) {
         printf("[main] pico_prov_init returned error code: %d\n", err);
