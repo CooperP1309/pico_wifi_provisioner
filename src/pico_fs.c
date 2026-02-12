@@ -1,11 +1,12 @@
 #include "pico_fs.h"
 #include "pico_hal.h"            // pico file system lib
+#include "wl_log.h"
 
 int pico_fs_init() {
 
     // attempt initial mount w/o formatting - expect mount error on first startup (format req.)
     if (pico_mount(false) < 0) {
-        printf("[pico_fs] failed to mount file system - commencing formatting...\n");
+        WL_LOGE("pico_fs", "failed to mount file system - commencing formatting...");
         
         // reattempt with formatting on first fail
         if (pico_mount(true) < 0) {
@@ -13,7 +14,7 @@ int pico_fs_init() {
         }
     }
 
-    printf("[pico_fs] file system mounted successfully\n");
+    WL_LOGI("pico_fs", "file system mounted successfully");
 
     return 0;
 }
@@ -24,7 +25,7 @@ int pico_fs_deinit() {
         return -1;
     }
 
-    printf("[pico_fs] unmounted successfully\n");
+    WL_LOGI("pico_fs", "unmounted successfully");
 
     return 0;
 }
@@ -35,7 +36,7 @@ int pico_fs_read_file(const char* file_name, char* buffer, int buff_len) {
     int fp = pico_open(file_name, LFS_O_RDWR | LFS_O_CREAT);
     
     if (fp < 0) {
-        printf("[pico_fs] error opening file\n");
+        WL_LOGE("pico_fs", "error opening file");
         return -1;
     }
 
@@ -49,7 +50,7 @@ int pico_fs_read_file(const char* file_name, char* buffer, int buff_len) {
     buffer[bytes_read] = '\0';
 
     if (pico_close(fp) < 0) {
-        printf("[pico_fs] error closing file\n");
+        WL_LOGE("pico_fs", "error closing file");
         return -1;
     }
 
@@ -62,28 +63,28 @@ int pico_fs_write_file(const char* file_name, char* buffer, int buf_len) {
     int fp = pico_open(file_name, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC);
     
     if (fp < 0) {
-        printf("[pico_fs] error opening file\n");
+        printf("[pico_fs] error opening file");
         return -1;
     }
 
-    printf("[pico_fs] file opened successfully\n");
+    WL_LOGI("pico_fs", "file opened successfully");
     
     // write from buffer
     int bytes_written = pico_write(fp, buffer, strnlen(buffer, buf_len));
 
     if (bytes_written < 0) {
-        printf("[pico_fs] error writting to cache\n");
+        WL_LOGE("pico_fs", "error writting to cache");
         return -1;
     }
 
-    printf("[pico_fs] %d bytes written to cache\n", bytes_written);
+    WL_LOGI("pico_fs", "%d bytes written to cache", bytes_written);
 
     if (pico_close(fp) < 0) {
-        printf("[pico_fs] error closing file\n");
+        WL_LOGE("pico_fs", "error closing file");
         return -1;
     }
 
-    printf("[pico_fs] file closed\n");
+    WL_LOGI("pico_fs", "file closed successfully");
 
     return 0;
 }
