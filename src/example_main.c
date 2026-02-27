@@ -52,7 +52,10 @@ int main() {
         }
     }
 
-    WL_LOGI("main", "attempting wifi connection with credentials\n    ssid: \"%s\"\n    password: \"%s\"", wifi_credentials.ssid, wifi_credentials.password);
+    fflush(stdout);
+    WL_LOGI("main", "attempting wifi connection with following credentials:"
+            "\nssid: \"%s\"\npassword: \"%s\""
+            , wifi_credentials.ssid, wifi_credentials.password);
 
     return 0;
 }

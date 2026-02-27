@@ -86,7 +86,7 @@ pico_prov_err_t pico_prov_end(pico_prov_credentials_t *wifi_credentials) {
 
     // append buffer depending on if a password is included
     if (wifi_credentials->password[0] != '\0') {
-        final_credentials_buffer = strcat(wifi_credentials->ssid, " ");
+        final_credentials_buffer = strcat(wifi_credentials->ssid, "&");
         final_credentials_buffer = strcat(final_credentials_buffer, wifi_credentials->password);
     }
     uint8_t err = pico_fs_write_file(CREDENTIALS_PATH, final_credentials_buffer, strlen(final_credentials_buffer));
@@ -113,9 +113,9 @@ void sort_credentials_buffer(pico_prov_credentials_t *wifi_credentials) {
     int x = 0;
 
     // SSID extracting
-    for (;i < 32; i++) {    // increment index i until space is reached
+    for (;i < 32; i++) {    // increment index i delimeter space is reached
         
-        if (credentials_buffer[i] == ' ' || credentials_buffer[i] == '\0') {
+        if (credentials_buffer[i] == '&' || credentials_buffer[i] == '\0') {
             break;
         }
 
@@ -124,7 +124,7 @@ void sort_credentials_buffer(pico_prov_credentials_t *wifi_credentials) {
 
     // terminate SSID and increment index beyond space
     wifi_credentials->ssid[i] = '\0';
-    
+
     // handle no password
     if (credentials_buffer[i] == '\0') {
         wifi_credentials->password[0] = '\0';

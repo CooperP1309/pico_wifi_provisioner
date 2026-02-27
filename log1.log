@@ -1,0 +1,76 @@
+17:10:33.125925 IP (tos 0x0, ttl 64, id 63383, offset 0, flags [DF], proto TCP (6), length 60)
+    peek-lite.57280 > _gateway.http: Flags [S], cksum 0xf66a (correct), seq 3803981365, win 64240, options [mss 1460,sackOK,TS val 1022535499 ecr 0,nop,wscale 9], length 0
+17:10:33.134428 IP (tos 0x0, ttl 255, id 552, offset 0, flags [none], proto TCP (6), length 44)
+    _gateway.http > peek-lite.57280: Flags [S.], cksum 0xde84 (correct), seq 6540, ack 3803981366, win 11680, options [mss 1460], length 0
+17:10:33.134474 IP (tos 0x0, ttl 64, id 63384, offset 0, flags [DF], proto TCP (6), length 40)
+    peek-lite.57280 > _gateway.http: Flags [.], cksum 0x28f1 (correct), ack 1, win 64240, length 0
+17:10:33.135049 IP (tos 0x0, ttl 64, id 63385, offset 0, flags [DF], proto TCP (6), length 531)
+    peek-lite.57280 > _gateway.http: Flags [P.], cksum 0x3aa1 (correct), seq 1:492, ack 1, win 64240, length 491: HTTP, length: 491
+	POST / HTTP/1.1
+	Host: 192.168.4.1
+	User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-US,en;q=0.9
+	Accept-Encoding: gzip, deflate
+	Content-Type: application/x-www-form-urlencoded
+	Content-Length: 24
+	Origin: http://192.168.4.1
+	Connection: keep-alive
+	Referer: http://192.168.4.1/
+	Upgrade-Insecure-Requests: 1
+	Priority: u=0, i
+	
+	wifi=WiFi-EF19&password= [|http]
+17:10:33.141766 IP (tos 0x0, ttl 255, id 553, offset 0, flags [none], proto TCP (6), length 123)
+    _gateway.http > peek-lite.57280: Flags [P.], cksum 0xca49 (correct), seq 1:84, ack 492, win 11189, length 83: HTTP, length: 83
+	HTTP/1.1 303 See Other
+	Location: /
+	Cache-Control: no-store
+	Content-Length: 0
+	
+17:10:33.141800 IP (tos 0x0, ttl 64, id 63386, offset 0, flags [DF], proto TCP (6), length 40)
+    peek-lite.57280 > _gateway.http: Flags [.], cksum 0x2706 (correct), ack 84, win 64157, length 0
+17:10:33.143708 IP (tos 0x0, ttl 64, id 26108, offset 0, flags [none], proto UDP (17), length 70)
+    peek-lite.34653 > _gateway.domain: 15411+ A? detectportal.firefox.com. (42)
+17:10:33.143835 IP (tos 0x0, ttl 64, id 2694, offset 0, flags [none], proto UDP (17), length 70)
+    peek-lite.52875 > _gateway.domain: 10567+ AAAA? detectportal.firefox.com. (42)
+17:10:33.144524 IP (tos 0x0, ttl 64, id 63387, offset 0, flags [DF], proto TCP (6), length 409)
+    peek-lite.57280 > _gateway.http: Flags [P.], cksum 0x877a (correct), seq 492:861, ack 84, win 64157, length 369: HTTP, length: 369
+	GET / HTTP/1.1
+	Host: 192.168.4.1
+	User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-US,en;q=0.9
+	Accept-Encoding: gzip, deflate
+	Referer: http://192.168.4.1/
+	Connection: keep-alive
+	Upgrade-Insecure-Requests: 1
+	Priority: u=0, i
+	
+17:10:33.146125 IP (tos 0x0, ttl 255, id 554, offset 0, flags [none], proto ICMP (1), length 56)
+    _gateway > peek-lite: ICMP _gateway udp port domain unreachable, length 36
+	IP (tos 0x0, ttl 64, id 26108, offset 0, flags [none], proto UDP (17), length 70)
+    peek-lite.34653 > _gateway.domain:  [|domain]
+17:10:33.146126 IP (tos 0x0, ttl 255, id 555, offset 0, flags [none], proto ICMP (1), length 56)
+    _gateway > peek-lite: ICMP _gateway udp port domain unreachable, length 36
+	IP (tos 0x0, ttl 64, id 2694, offset 0, flags [none], proto UDP (17), length 70)
+    peek-lite.52875 > _gateway.domain:  [|domain]
+17:10:33.146436 IP (tos 0x0, ttl 64, id 53585, offset 0, flags [DF], proto TCP (6), length 64)
+    peek-lite.43304 > _gateway.domain: Flags [S], cksum 0xcf74 (correct), seq 850919624, win 64240, options [mss 1460,sackOK,TS val 1022535519 ecr 0,nop,wscale 9,tfo  cookiereq,nop,nop], length 0
+17:10:33.150492 IP (tos 0x0, ttl 255, id 556, offset 0, flags [none], proto TCP (6), length 1500)
+    _gateway.http > peek-lite.57280: Flags [P.], cksum 0x21cb (correct), seq 84:1544, ack 861, win 10820, length 1460: HTTP, length: 1460
+	HTTP/1.1 200 OK
+	Content-Type: text/html
+	Content-Length: 1442
+	Connection: close
+	
+	<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Login</title><style>body{margin:0;font-family:Arial;background:#e9eef3;display:flex;justify-content:center;align-items:center;height:100vh;}.box{background:#fff;padding:30px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1);width:280px;}.box h2{text-align:center;margin:0 0 20px;color:#333;font-size:20px;}.full{width:100%;box-sizing:border-box;}.box input{padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;font-size:14px;}.box button{padding:10px;border:none;border-radius:6px;background:#007bff;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;}.box button:hover{background:#0056b3;}#status{margin-top:10px;text-align:center;font-size:13px;color:#c00;}</style></head><body><div class="box"><h2>Anticipate - Wi-Fi Login</h2><form method="post"><input class="full" type="text" name="wifi" placeholder="Enter SSID"><div style="position:relative"><input id="pw" class="full" type="password" name="password" placeholder="Enter password"><span style="position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:12px;color:#555">*Optional</span></div><label style="display:block;font-size:13px;color:#333"><input type="checkbox" style="margin-right:6px" onclick="pw.type=this.checked?'text':'password'">Show password</label><div id="status">Saved SSID (no password)</div><button c [|http]
+17:10:33.150493 IP (tos 0x0, ttl 255, id 557, offset 0, flags [none], proto TCP (6), length 40)
+    _gateway.domain > peek-lite.43304: Flags [R.], cksum 0xa962 (correct), seq 0, ack 850919625, win 41005, length 0
+17:10:33.150915 IP (tos 0x0, ttl 64, id 5347, offset 0, flags [DF], proto TCP (6), length 64)
+    peek-lite.43320 > _gateway.domain: Flags [S], cksum 0x4041 (correct), seq 1199733532, win 64240, options [mss 1460,sackOK,TS val 1022535524 ecr 0,nop,wscale 9,tfo  cookiereq,nop,nop], length 0
+17:10:33.191788 IP (tos 0x0, ttl 64, id 63388, offset 0, flags [DF], proto TCP (6), length 40)
+    peek-lite.57280 > _gateway.http: Flags [.], cksum 0x1a7f (correct), ack 1544, win 65535, length 0
+17:10:34.211833 IP (tos 0x0, ttl 64, id 5348, offset 0, flags [DF], proto TCP (6), length 60)
+    peek-lite.43320 > _gateway.domain: Flags [S], cksum 0x6f23 (correct), seq 1199733532, win 64240, options [mss 1460,sackOK,TS val 1022536585 ecr 0,nop,wscale 9], length 0
+

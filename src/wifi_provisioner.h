@@ -54,9 +54,9 @@ pico_prov_err_t pico_prov_end(pico_prov_credentials_t *credentials);
 
 // Sorts the credentails retrieved from the pico fs system
 //
-// Where the format of the extracted credentials is a single char array,
-// we sort the credentails buffer into the passed reference for the 
-// credentials struct. SSID and password are space delimited when stored.
+// Where the format of the extracted credentials is a char array,
+// we sort the credentails buffer into the passed credentials struct. 
+// SSID and password are split by an '&' when stored.
 // This function accounts for missing credentials and case where password
 // is missing but SSID isn't. The credentails buffer for each will be left
 // char[0] = '\0' where necessary.

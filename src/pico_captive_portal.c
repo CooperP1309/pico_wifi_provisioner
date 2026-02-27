@@ -291,13 +291,31 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
     uint8_t current_index = 0;
     while (chr_ptr[value_index + current_index] != '\0' &&
            chr_ptr[value_index + current_index] != '&' &&
-           chr_ptr[value_index + current_index] != ' ' &&
-           chr_ptr[value_index + current_index] != '\n') {
-
-        out_buffer[current_index] = chr_ptr[value_index + current_index];
+           chr_ptr[value_index + current_index] != '\n' &&
+           chr_ptr[value_index + current_index] != ' '
+        ) {
+        
+        if (chr_ptr[value_index + current_index] == '+') {  // case for URL encoding of spaces
+            out_buffer[current_index] = ' ';
+        }
+        else {
+            out_buffer[current_index] = chr_ptr[value_index + current_index];
+        }
         current_index++;
     }
     out_buffer[current_index] = '\0';
+}
+
+static uint8_t has_value(char *http_request, char *key) {
+
+    char *chr_ptr;
+    chr_ptr = strstr(http_request, key);
+
+    if (chr_ptr == NULL) {
+        return 0;
+    }
+
+    return 1;
 }
 
 static uint8_t has_ssid(char *http_request) {
