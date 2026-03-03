@@ -39,7 +39,8 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
 // Sends data to an accepted connection/
 //
 // Arg set as client pcb via tcp_arg(). This will deliver a http response with html
-// and css for the captive web portal.
+// and css for the captive web portal. The page that's sent depends of if the server 
+// recieved a get or post request and the credentials status of the device.
 err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb);
 
 // Callback function for sent data.
@@ -53,6 +54,12 @@ err_t pico_captive_portal_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
 // Callback call when the client pcb sends an http response to the server pcb.
 err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
+// Checks a buffer for a key
+//
+// Calls strstr and checks for NULL return. Returns 1 if value is present and 0 if not.
+// Used in this project to check http request types.
+static uint8_t has_value(char *http_request, char *key);
+
 // Extract wifi details provided in http response
 //
 // Given an http response, extract the wifi credentials and store them in a credentials struct.
@@ -64,29 +71,8 @@ static void get_wifi_login(void *arg);
 // Search for the key within a buffer. When the index of the key is found,
 // this function skips past the index of the last character and equals sign
 // and copies data to the provided output buffer. It stops copying data when
-// met with a terminating null or an ampersand.
+// met with a terminating null or an ampersand. This function also URL decodes spaces.
 static void get_value(char *in_buffer, char *key, char *out_buffer);
-
-// Checks if a passed http request has a value for a given key.
-//
-// Calls strstr and checks for NULL return. Returns 1 if value is present and 0 if not.
-static uint8_t has_value(char *http_request, char *key);
-
-// Checks if a passed http request has wifi credentials passed within it
-//
-// Using strstr for "wifi=" and "password=", this function will return 1 if they
-// are both present and 0 if they are not.
-static uint8_t has_ssid(char *http_request);
-
-// Checks if a passed http request has POST it
-//
-// Using strstr, returns false/0 on NULL return and true/1 otherwise
-static uint8_t is_post(char *http_request);
-
-// Checks if a passed http request has GET it
-//
-// Using strstr, returns false/0 on NULL return and true/1 otherwise
-static uint8_t is_get(char *http_request);
 
 // Closes all pcb connections
 //

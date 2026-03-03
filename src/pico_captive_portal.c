@@ -132,8 +132,6 @@ err_t pico_captive_portal_accept(void *arg, struct tcp_pcb *client_pcb, err_t er
     tcp_arg(client_pcb, captive_server);
     tcp_sent(client_pcb, pico_captive_portal_sent);
     tcp_recv(client_pcb, pico_captive_portal_recv);
-    //tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
-    //tcp_err(client_pcb, tcp_server_err);
 
     pico_captive_portal_send_data(arg, captive_server->client_pcb);
 
@@ -145,7 +143,7 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
     portal_server_t *captive_server = (portal_server_t*)arg;
 
     // handle varying request types
-    if (is_get(captive_server->buffer_recv)) {
+    if (has_value(captive_server->buffer_recv, "GET / HTTP/1.1")) {   // case for get request
 
         // setting of credentials status (must precede setting of conent-length)
         const char *status;
@@ -192,7 +190,7 @@ err_t pico_captive_portal_send_data(void *arg, struct tcp_pcb *client_pcb) {
         tcp_write(client_pcb, status, strlen(status), TCP_WRITE_FLAG_COPY);
         tcp_write(client_pcb, status_placeholder + strlen("%STATUS%"), body_lower, TCP_WRITE_FLAG_COPY);
     }
-    else if (is_post(captive_server->buffer_recv)) {
+    else if (has_value(captive_server->buffer_recv, "POST / HTTP/1.1")) { // case for post request
 
         const char *header = HEADER_REDIRECT;
         
@@ -239,7 +237,7 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     pbuf_free(p);
 
     // process recieved buffer if credentials are present
-    if (has_ssid(captive_server->buffer_recv)) {
+    if (has_value(captive_server->buffer_recv, "wifi=")) {
 
         // clear credentials prior to further reading
         memset(wifi_credentials, 0, sizeof(pico_prov_credentials_t));
@@ -249,6 +247,18 @@ err_t pico_captive_portal_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
     }
 
     return pico_captive_portal_send_data(arg, captive_server->client_pcb);
+}
+
+static uint8_t has_value(char *http_request, char *key) {
+
+    char *chr_ptr;
+    chr_ptr = strstr(http_request, key);
+
+    if (chr_ptr == NULL) {
+        return 0;
+    }
+
+    return 1;
 }
 
 static void get_wifi_login(void *arg) {
@@ -304,54 +314,6 @@ static void get_value(char *in_buffer, char *key, char *out_buffer) {
         current_index++;
     }
     out_buffer[current_index] = '\0';
-}
-
-static uint8_t has_value(char *http_request, char *key) {
-
-    char *chr_ptr;
-    chr_ptr = strstr(http_request, key);
-
-    if (chr_ptr == NULL) {
-        return 0;
-    }
-
-    return 1;
-}
-
-static uint8_t has_ssid(char *http_request) {
-
-    char *chr_ptr, *chr_ptr1;
-    chr_ptr = strstr(http_request, "wifi=");
-
-    if (chr_ptr == NULL) {
-        return 0;
-    }
-
-    return 1;
-}
-
-static uint8_t is_post(char *http_request) {
-
-    char *chr_ptr, *chr_ptr1;
-    chr_ptr = strstr(http_request, "POST");
-
-    if (chr_ptr == NULL) {
-        return 0;
-    }
-
-    return 1;
-}
-
-static uint8_t is_get(char *http_request) {
-
-    char *chr_ptr, *chr_ptr1;
-    chr_ptr = strstr(http_request, "GET");
-
-    if (chr_ptr == NULL) {
-        return 0;
-    }
-
-    return 1;
 }
 
 err_t pico_captive_portal_close(portal_server_t *captive_server) {
